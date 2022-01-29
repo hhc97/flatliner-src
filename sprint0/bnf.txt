@@ -1,0 +1,70 @@
+letter = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" 
+| "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" 
+| "x" | "y" | "z" | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" 
+| "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" 
+| "V" | "W" | "X" | "Y" | "Z"
+
+number = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+float = {number} number "." {number}
+
+boolean = "True" | "False"
+
+type = letter | number | float | list | boolean
+
+list = "[" [type {"," type}] "]"
+
+expr = type
+    | "range"(number)
+    | expr binary_op expr
+    | unaryOp expr
+    
+binary_op = "+" | "-" | "*" | "/" | "<" | "<=" | ">=" | ">" | "=="  | 
+"and" | "or" | "+=" | "-=" | "*=" | "/=" | "%"
+
+unaryOp = "-", "not"    
+    
+compound_stmt = function_def
+    | if_stmt
+    | for_stmt
+    | while_stmt
+
+
+assignment = ID "=" expr
+    
+statement = compound_stmt | assignment
+
+
+ID = letter | ID letter  | ID number | ID "_"
+
+function_def = "def" ID "(" [params] "):"
+                {statement}
+                "return" expr
+
+base_type = "int" | "float" | "bool" | "str" | "list"
+
+params = ID [: base_type]
+
+if_stmt = "if" expr ":" 
+            {statement} 
+    | "if" expr ": 
+    "   "{statement} 
+      elif_stmt
+    | "if" expr ":" 
+    "   "{statement} elif_stmt 
+    "  "else_block
+    | "if" expr ":" 
+    "   "{statement} 
+    " "else_block
+    
+elif_stmt = "elif" expr ":" {statement} 
+    | "elif" expr ":" {statement} elif_stmt
+    | "elif" expr":" {statement} else_block 
+    
+else_block = "else" ":" block 
+
+while_stmt = "while" expr ":" 
+                     {statement}
+
+for_stmt = "for" target "in" expr ":" 
+        {statement}
