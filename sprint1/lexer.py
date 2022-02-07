@@ -4,14 +4,32 @@ from ply import lex
 # List of token names. This is always required
 tokens = [
     'BOOLEAN',
-    'LETTER',
     'FLOAT',
     'NUMBER',
+
+    'RETURN',       # return
 
     'PLUS',
     'MINUS',
     'TIMES',
     'DIVIDE',
+
+    'LT',           # <
+    'GT',           # >
+    'LTE',          # <=
+    'GTE',          # >=
+    'DOUBLEEQUAL',  # ==
+    'NE',           # #
+
+
+    'IF',           # if
+    'ELSE',         # else
+    'ELSEIF',       # elseif
+    'WHILE',        # while
+    'FOR',          # for
+
+    'LBRACE',       # [
+    'RBRACE',       # ]
 
     'OR',
     'AND',
