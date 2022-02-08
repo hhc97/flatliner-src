@@ -6,6 +6,7 @@ tokens = [
     'BOOLEAN',
     'FLOAT',
     'NUMBER',
+    'LETTER',
 
     'RETURN',       # return
 
@@ -38,6 +39,8 @@ tokens = [
     'GREATEREQ',
     'LESSEREQ',
     'EQ',
+
+    'ASSIGN',
 
     'LPAREN',
     'RPAREN'
