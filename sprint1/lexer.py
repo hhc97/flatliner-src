@@ -11,7 +11,8 @@ reserved ={
     'return': 'RETURN',
     ':': 'COLON',
     ',': 'COMMA',
-    '=': 'ASSIGN'
+    '=': 'ASSIGN',
+    '->': 'TYPEDEF'
 }
 # List of token names. This is always required
 tokens = [
@@ -26,15 +27,15 @@ tokens = [
     'TIMES',
     'DIVIDE',
 
+    'PE', #+=
+    'ME', #-=
+
     'LT',           # <
     'GT',           # >
     'LTE',          # <=
     'GTE',          # >=
     'DOUBLEEQUAL',  # ==
     'NE',           # #
-
-    'LBRACE',       # [
-    'RBRACE',       # ]
 
     'OR',
     'AND',
@@ -44,13 +45,40 @@ tokens = [
     'LESSEREQ',
     'EQ',
 
+    'COMMENT',
+
     'LPAREN',
-    'RPAREN'
+    'RPAREN',
+    'LBRACE',
+    'RBRACE',
+    'LCURLY',
+    'RCURLY'
 ] + list(reserved.values())
 
 
 class pythonLexer():
     t_ignore = ' \t'
+
+    states = (
+    ("COMMENT", "exclusive"),
+    )
+
+    def t_start_comment(self,t):
+        r'\"\"\"'
+        t.lexer.push_state("COMMENT")
+
+    def t_COMMENT_error(self,t):
+        print("Illegal COMMENT character '%s'" % t.value[0])
+        t.lexer.skip(1)
+
+    t_COMMENT_ignore = ''
+
+    def t_COMMENT_contents(self,t):
+        r'[^"][^"][^"]*'
+
+    def t_COMMENT_end(self,t):
+        r'\"\"\"'
+        t.lexer.pop_state()
 
     t_ignore_COMMENT = r'\#.*'
 
@@ -60,6 +88,7 @@ class pythonLexer():
         t.type = reserved.get(t.value,'ID')    # Check for reserved words
         return t
 
+    t_TYPEDEF = r'->'
     # Regular expression rule with some action code
     t_LETTER = r'[\'\"][a-zA-Z]+[\'\"]'
     t_BOOLEAN = r'(?:True|False)'
@@ -69,6 +98,8 @@ class pythonLexer():
     t_MINUS = r'-'
     t_TIMES = r'\*'
     t_DIVIDE = r'/'
+    t_PE = r'\+\='
+    t_ME = r'\-\='
 
     # boolean
     t_OR = r'or'
@@ -82,6 +113,12 @@ class pythonLexer():
     # other 
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
+
+    t_LBRACE = r'\['
+    t_RBRACE = r'\]'
+
+    t_LCURLY = r'\{'
+    t_RCURLY = r'\}'
 
     # A regular expression rule with some action code
     def t_NUMBER(self, t):
