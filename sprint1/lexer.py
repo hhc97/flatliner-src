@@ -10,7 +10,8 @@ reserved ={
     'for': 'FOR',
     'return': 'RETURN',
     ':': 'COLON',
-    ',': 'COMMA'
+    ',': 'COMMA',
+    '=': 'ASSIGN'
 }
 # List of token names. This is always required
 tokens = [
@@ -55,7 +56,7 @@ class pythonLexer():
 
 
     def t_ID(self, t):
-        r'[a-zA-Z_][a-zA-Z_0-9]*'
+        r'[a-zA-Z_=:,][a-zA-Z_0-9]*'
         t.type = reserved.get(t.value,'ID')    # Check for reserved words
         return t
 
