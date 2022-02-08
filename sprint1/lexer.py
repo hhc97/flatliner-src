@@ -8,7 +8,9 @@ reserved ={
     'else': 'ELSE',
     'while': 'WHILE',
     'for': 'FOR',
-    'return': 'RETURN'
+    'return': 'RETURN',
+    ':': 'COLON',
+    ',': 'COMMA'
 }
 # List of token names. This is always required
 tokens = [
