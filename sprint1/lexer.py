@@ -49,6 +49,8 @@ tokens = [
 class pythonLexer():
     t_ignore = ' \t'
 
+    t_ignore_COMMENT = r'\#.*'
+
 
     def t_ID(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
