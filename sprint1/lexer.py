@@ -1,14 +1,22 @@
 import argparse
 from ply import lex
 
+#Reserved words
+reserved ={
+    'if': 'IF',
+    'then': 'THEN',
+    'else': 'ELSE',
+    'while': 'WHILE',
+    'for': 'FOR',
+    'return': 'RETURN'
+}
 # List of token names. This is always required
 tokens = [
+    'ID',
     'BOOLEAN',
     'FLOAT',
     'NUMBER',
     'LETTER',
-
-    'RETURN',       # return
 
     'PLUS',
     'MINUS',
@@ -22,13 +30,6 @@ tokens = [
     'DOUBLEEQUAL',  # ==
     'NE',           # #
 
-
-    'IF',           # if
-    'ELSE',         # else
-    'ELSEIF',       # elseif
-    'WHILE',        # while
-    'FOR',          # for
-
     'LBRACE',       # [
     'RBRACE',       # ]
 
@@ -40,15 +41,20 @@ tokens = [
     'LESSEREQ',
     'EQ',
 
-    'ASSIGN',
-
     'LPAREN',
     'RPAREN'
-]
+] + list(reserved.values())
 
 
 class pythonLexer():
     t_ignore = ' \t'
+
+
+    def t_ID(self, t):
+        r'[a-zA-Z_][a-zA-Z_0-9]*'
+        t.type = reserved.get(t.value,'ID')    # Check for reserved words
+        return t
+
     # Regular expression rule with some action code
     t_LETTER = r'[\'\"][a-zA-Z]+[\'\"]'
     t_BOOLEAN = r'(?:True|False)'
