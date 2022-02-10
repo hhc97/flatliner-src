@@ -1,8 +1,9 @@
 import argparse
+
 from ply import lex
 
-#Reserved words
-reserved ={
+# Reserved words
+reserved = {
     'if': 'IF',
     'then': 'THEN',
     'else': 'ELSE',
@@ -16,76 +17,75 @@ reserved ={
 }
 # List of token names. This is always required
 tokens = [
-    'ID',
-    'BOOLEAN',
-    'FLOAT',
-    'NUMBER',
-    'LETTER',
+             'ID',
+             'BOOLEAN',
+             'FLOAT',
+             'NUMBER',
+             'LETTER',
 
-    'PLUS',
-    'MINUS',
-    'TIMES',
-    'DIVIDE',
+             'PLUS',
+             'MINUS',
+             'TIMES',
+             'DIVIDE',
 
-    'PE', #+=
-    'ME', #-=
+             'PE',  # +=
+             'ME',  # -=
 
-    'LT',           # <
-    'GT',           # >
-    'LTE',          # <=
-    'GTE',          # >=
-    'DOUBLEEQUAL',  # ==
-    'NE',           # #
+             'LT',  # <
+             'GT',  # >
+             'LTE',  # <=
+             'GTE',  # >=
+             'DOUBLEEQUAL',  # ==
+             'NE',  # #
 
-    'OR',
-    'AND',
-    'GREATER',
-    'LESSER',
-    'GREATEREQ',
-    'LESSEREQ',
-    'EQ',
+             'OR',
+             'AND',
+             'GREATER',
+             'LESSER',
+             'GREATEREQ',
+             'LESSEREQ',
+             'EQ',
 
-    'COMMENT',
+             'COMMENT',
 
-    'LPAREN',
-    'RPAREN',
-    'LBRACE',
-    'RBRACE',
-    'LCURLY',
-    'RCURLY'
-] + list(reserved.values())
+             'LPAREN',
+             'RPAREN',
+             'LBRACE',
+             'RBRACE',
+             'LCURLY',
+             'RCURLY'
+         ] + list(reserved.values())
 
 
 class pythonLexer():
     t_ignore = ' \t'
 
     states = (
-    ("COMMENT", "exclusive"),
+        ("COMMENT", "exclusive"),
     )
 
-    def t_start_comment(self,t):
+    def t_start_comment(self, t):
         r'\"\"\"'
         t.lexer.push_state("COMMENT")
 
-    def t_COMMENT_error(self,t):
+    def t_COMMENT_error(self, t):
         print("Illegal COMMENT character '%s'" % t.value[0])
         t.lexer.skip(1)
 
     t_COMMENT_ignore = ''
 
-    def t_COMMENT_contents(self,t):
+    def t_COMMENT_contents(self, t):
         r'[^"][^"][^"]*'
 
-    def t_COMMENT_end(self,t):
+    def t_COMMENT_end(self, t):
         r'\"\"\"'
         t.lexer.pop_state()
 
     t_ignore_COMMENT = r'\#.*'
 
-
     def t_ID(self, t):
         r'[a-zA-Z_=:,][a-zA-Z_0-9]*'
-        t.type = reserved.get(t.value,'ID')    # Check for reserved words
+        t.type = reserved.get(t.value, 'ID')  # Check for reserved words
         return t
 
     t_TYPEDEF = r'->'
@@ -145,6 +145,7 @@ class pythonLexer():
     def build(self, **kwargs):
         self.tokens = tokens
         self.lexer = lex.lex(module=self, **kwargs)
+
     # Test the output. DO NOT MODIFY
 
     def test(self, data):
@@ -155,8 +156,9 @@ class pythonLexer():
                 break
             print(tok)
 
+
 # Main function. DO NOT MODIFY
-if __name__=="__main__":
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Take in the Python source code and perform lexical analysis.')
     parser.add_argument('FILE', help="Input file with Python source code")
     args = parser.parse_args()
