@@ -3,15 +3,15 @@ A test for advanced types.
 """
 
 
-def test(a: dict[int, int], b: list[int]) -> None:
+def test(a, b):
     for i in b:
-        if i in a:
-            a[i] += 1
+        if i  == 1:
+            a += 2
         else:
-            a[i] = 1
+            a += i
+    return a
 
 
-temp = {}
-test(temp, [1, 1, 2])
+a = test(0, [1, 1, 2])
 
-print(temp)
+print(a)

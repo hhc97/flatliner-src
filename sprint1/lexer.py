@@ -11,9 +11,7 @@ reserved = {
     'for': 'FOR',
     'return': 'RETURN',
     ':': 'COLON',
-    ',': 'COMMA',
-    '=': 'ASSIGN',
-    '->': 'TYPEDEF'
+    ',': 'COMMA'
 }
 # List of token names. This is always required
 tokens = [
@@ -21,8 +19,9 @@ tokens = [
              'BOOLEAN',
              'FLOAT',
              'NUMBER',
+             'ASSIGN',
              'LETTER',
-
+             'INDENT',
              'PLUS',
              'MINUS',
              'TIMES',
@@ -84,11 +83,10 @@ class pythonLexer():
     t_ignore_COMMENT = r'\#.*'
 
     def t_ID(self, t):
-        r'[a-zA-Z_=:,][a-zA-Z_0-9]*'
+        r'[a-zA-Z_:,][a-zA-Z_0-9]*'
         t.type = reserved.get(t.value, 'ID')  # Check for reserved words
         return t
 
-    t_TYPEDEF = r'->'
     # Regular expression rule with some action code
     t_LETTER = r'[\'\"][a-zA-Z]+[\'\"]'
     t_BOOLEAN = r'(?:True|False)'
@@ -107,8 +105,9 @@ class pythonLexer():
     t_GREATER = r'>'
     t_LESSER = r'<'
     t_GREATEREQ = r'>='
-    t_LESSEREQ = r'<='
     t_EQ = r'=='
+    t_ASSIGN = r'='
+    t_LESSEREQ = r'<='
 
     # other 
     t_LPAREN = r'\('
@@ -116,9 +115,6 @@ class pythonLexer():
 
     t_LBRACE = r'\['
     t_RBRACE = r'\]'
-
-    t_LCURLY = r'\{'
-    t_RCURLY = r'\}'
 
     # A regular expression rule with some action code
     def t_NUMBER(self, t):

@@ -1,4 +1,4 @@
-def test(a: int, b: int) -> int:
+def test(a, b):
     return a + b
 
 
