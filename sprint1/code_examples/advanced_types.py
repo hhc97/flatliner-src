@@ -4,14 +4,15 @@ A test for advanced types.
 
 
 def test(a, b):
+    new = []
     for i in b:
-        if i == 1:
-            a += 2
+        if i % 2 == 0:
+            new.append(i)
         else:
-            a += i
-    return a
+            new.append(i + a)
+    return new
 
 
-c = test(0, [1, 1, 2])
+c = test(5, [1, 2, 3, 4, 5])
 
 print(c)
