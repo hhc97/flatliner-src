@@ -116,15 +116,14 @@ class PythonLexer:
     t_LBRACE = r'\['
     t_RBRACE = r'\]'
 
-    # A regular expression rule with some action code
-    def t_NUMBER(self, t):
-        r'\d+'
-        t.value = int(t.value)
+    def t_FLOAT(self,t):
+        '[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'        
+        t.value = float(t.value)
         return t
 
-    def t_FLOAT(self, t):
-        r'\d+.\d*'
-        t.value = float(t.value)
+    def t_NUMBER(self,t):
+        r'\d+'
+        t.value = int(t.value)
         return t
 
     # Define a rule so we can track line numbers. DO NOT MODIFY
