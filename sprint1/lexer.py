@@ -56,7 +56,7 @@ tokens = [
          ] + list(reserved.values())
 
 
-class pythonLexer():
+class PythonLexer:
     t_ignore = ' \t'
 
     states = (
@@ -161,6 +161,6 @@ if __name__ == "__main__":
     f = open(args.FILE, 'r')
     data = f.read()
     f.close()
-    m = pythonLexer()
+    m = PythonLexer()
     m.build()
     m.test(data)
