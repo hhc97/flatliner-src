@@ -18,6 +18,35 @@ class PythonParser:
     precedence = (
     )
 
+    # basic operators
+
+    def p_expr_id(self, p):
+        """
+        expr : NUMBER
+        """
+        p[0] = ast.Constant(int(p[1]))
+
+    def p_expr_assign(self, p):
+        """
+        expr : ID ASSIGN expr
+        """
+        p[0] = ast.Assign([ast.Name(p[1], ast.Store())], p[3], lineno=self.lexer.lexer.lineno)
+
+    def p_BinOp(self, p):
+        """
+        expr : expr PLUS expr
+             | expr MINUS expr
+             | expr TIMES expr
+             | expr DIVIDE expr
+        """
+        op_map = {
+            '+': ast.Add(),
+            '-': ast.Sub(),
+            '*': ast.Mult(),
+            '/': ast.Div(),
+        }
+        p[0] = ast.BinOp(p[1], op_map[p[2]], p[3])
+
     ################################
     ## Misc
     ################################
@@ -27,9 +56,9 @@ class PythonParser:
     #
     #       optitem : item
     #               | empty
-    def p_empty(self, p):
-        """empty :"""
-        pass
+    # def p_empty(self, p):
+    #     """empty :"""
+    #     pass
 
     def p_error(self, p):
         print("Syntax error at token", p)
@@ -42,6 +71,10 @@ class PythonParser:
 
     def test(self, data):
         result = self.parser.parse(data)
+        # result = ast.Module([result], [])
+        print(result)
+        print(ast.dump(result, indent=4))
+        print(ast.unparse(result))
         visitor = ast.NodeVisitor()
         visitor.visit(result)
 
