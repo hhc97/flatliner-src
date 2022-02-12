@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
 import argparse
+import ast
+
 from ply import yacc
-from miniJavaLexer import MiniJavaLexer
-import miniJavaAST as ast
 
+from lexer import PythonLexer
 # Get the token map from the lexer. This is required.
-from miniJavaLexer import tokens
+from lexer import tokens
 
-class MiniJavaParser:
+
+class PythonParser:
     """
     MiniJavaParser follows similar language defined in MiniJava.cup file
     (available on Quercus). There are slight differences, such as no hard
@@ -232,7 +234,6 @@ class MiniJavaParser:
         '''
         p[0] = ast.RetStmt(self, p[2])
 
-
     ################################
     ## Expressions
     ################################
@@ -341,7 +342,7 @@ class MiniJavaParser:
 
     def build(self, **kwargs):
         self.tokens = tokens
-        self.lexer = MiniJavaLexer()
+        self.lexer = PythonLexer()
         self.lexer.build()
         self.parser = yacc.yacc(module=self, **kwargs)
 
@@ -350,8 +351,8 @@ class MiniJavaParser:
         visitor = ast.NodeVisitor()
         visitor.visit(result)
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description='Take in the miniJava source code and parses it')
     argparser.add_argument('FILE', help='Input file with miniJava source code')
     args = argparser.parse_args()
@@ -360,6 +361,6 @@ if __name__ == "__main__":
     data = f.read()
     f.close()
 
-    m = MiniJavaParser()
+    m = PythonParser()
     m.build()
     m.test(data)
