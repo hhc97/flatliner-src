@@ -90,7 +90,11 @@ class PythonLexer:
         return t
 
     t_ignore_COMMENT = r'\#.*'
-    t_STRING = r'[\'\"].*[\'\"]'
+
+    def t_STRING(self, t):
+        r'[\'][^\']*[\']|[\"][^\"]*[\"]'
+        t.value = t.value[1:-1]
+        return t
 
     def t_ID(self, t):
         r'[a-zA-Z_:,][a-zA-Z_0-9]*'
