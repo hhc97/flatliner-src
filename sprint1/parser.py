@@ -16,6 +16,7 @@ class PythonParser:
     """
 
     precedence = (
+        ('left', 'GREATER', 'LESSER', 'GREATEREQ', 'LESSEREQ', 'EQ', 'NEQ'),
         ('left', 'PLUS', 'MINUS'),
         ('left', 'TIMES', 'DIVIDE'),
     )
@@ -51,6 +52,18 @@ class PythonParser:
     ################################
     ## Expressions
     ################################
+    def p_expr_bool(self, p):
+        """
+        expr : expr AND expr
+             | expr OR expr
+        """
+        print("bool op")
+        op_map = {
+            'and': ast.And(),
+            'or': ast.Or(),
+        }
+        p[0] = ast.BoolOp(op_map[p[2]], [p[1], p[3]])
+
     def p_expr_compare(self, p):
         """
         expr : expr GREATER expr
@@ -120,6 +133,15 @@ class PythonParser:
         expr : ID
         """
         p[0] = ast.Name(p[1], ast.Load())
+
+    ################################
+    ## if statements
+    ################################
+
+    # def p_logic_if(self, p):
+    #     """
+    #
+    #     """
 
     ################################
     ## Misc
