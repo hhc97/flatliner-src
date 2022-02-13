@@ -33,13 +33,6 @@ tokens = [
              'PE',  # +=
              'ME',  # -=
 
-             'LT',  # <
-             'GT',  # >
-             'LTE',  # <=
-             'GTE',  # >=
-             'DOUBLEEQUAL',  # ==
-             'NE',  # #
-
              'OR',
              'AND',
              'GREATER',
@@ -47,6 +40,7 @@ tokens = [
              'GREATEREQ',
              'LESSEREQ',
              'EQ',
+             'NEQ',
 
              'COMMENT',
              'NEWLINE',
@@ -120,6 +114,7 @@ class PythonLexer:
     t_EQ = r'=='
     t_ASSIGN = r'='
     t_LESSEREQ = r'<='
+    t_NEQ = r'!='
 
     # other 
 
