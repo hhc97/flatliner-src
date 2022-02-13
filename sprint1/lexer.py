@@ -15,7 +15,9 @@ reserved = {
     'for': 'FOR',
     'return': 'RETURN',
     ':': 'COLON',
-    ',': 'COMMA'
+    ',': 'COMMA',
+    'or': 'OR',
+    'and': 'AND',
 }
 # List of token names. This is always required
 tokens = [
@@ -33,8 +35,6 @@ tokens = [
              'PE',  # +=
              'ME',  # -=
 
-             'OR',
-             'AND',
              'GREATER',
              'LESSER',
              'GREATEREQ',
@@ -106,8 +106,6 @@ class PythonLexer:
     t_ME = r'\-\='
 
     # boolean algebra
-    t_OR = r'or'
-    t_AND = r'and'
     t_GREATER = r'>'
     t_LESSER = r'<'
     t_GREATEREQ = r'>='
