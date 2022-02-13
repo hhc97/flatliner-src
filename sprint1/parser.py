@@ -72,15 +72,23 @@ class PythonParser:
         expr : NUMBER
         """
         print("number")
-        p[0] = ast.Constant(p[1])
+        p[0] = ast.Constant(p[1], 'int')
 
     def p_expr_bool(self, p):
         """
         expr : BOOLEAN
         """
-        p[0] = ast.Constant(p[1])
+        print('bool')
+        p[0] = ast.Constant(p[1], 'bool')
 
-    def p_expr_constant(self, p):
+    def p_expr_float(self, p):
+        """
+        expr : FLOAT
+        """
+        print("float")
+        p[0] = ast.Constant(p[1], 'float')
+
+    def p_expr_id(self, p):
         """
         expr : ID
         """
