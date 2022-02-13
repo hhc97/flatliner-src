@@ -16,7 +16,7 @@ class PythonParser:
     """
 
     precedence = (
-        ("left", "EQ", "GREATER", "LESSER", "NEQ"),
+        ("left", "EQ", "GREATER", "LESSER", "NEQ", "GREATEREQ", "LESSEREQ",),
         ("left", "PLUS", "MINUS"),
         ("left", "TIMES", "DIVIDE"),
     )
