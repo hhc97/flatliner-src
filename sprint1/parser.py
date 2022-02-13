@@ -19,28 +19,36 @@ class PythonParser:
         ('left', 'PLUS', 'MINUS'),
         ('left', 'TIMES', 'DIVIDE'),
     )
+    
+    ################################
+    ## Statements
+    ################################
 
-    # basic operators
+    def p_statement(self, p):
+        """
+        stmt : assign_stmt
+        """
+        print("statement")
+        p[0] = p[1]
 
-    def p_expr_id(self, p):
+    def p_assignment_statement(self, p):
         """
-        expr : NUMBER
+        assign_stmt :  ID ASSIGN expr NEWLINE
         """
-        p[0] = ast.Constant(int(p[1]))
-
-    def p_expr_assign(self, p):
-        """
-        expr : ID ASSIGN expr
-        """
-        p[0] = ast.Assign([ast.Name(p[1], ast.Store())], p[3], lineno=self.lexer.lexer.lineno)
-
-    def p_BinOp(self, p):
+        print("assign")
+        p[0] = ast.Assign([ast.Name(p[1], ast.Store())], p[3], lineno=p.lineno)
+    
+    ################################
+    ## Expressions
+    ################################
+    def p_expr_binops(self, p):
         """
         expr : expr PLUS expr
              | expr MINUS expr
              | expr TIMES expr
              | expr DIVIDE expr
         """
+        print("binary op")
         op_map = {
             '+': ast.Add(),
             '-': ast.Sub(),
@@ -48,6 +56,25 @@ class PythonParser:
             '/': ast.Div(),
         }
         p[0] = ast.BinOp(p[1], op_map[p[2]], p[3])
+    
+    def p_expr_number(self, p):
+        """
+        expr : NUMBER
+        """
+        print("number")
+        p[0] = ast.Constant(p[1])
+
+    def p_expr_bool(self, p):
+        """
+        expr : BOOLEAN
+        """
+        p[0] = ast.Constant(p[1]) 
+
+    def p_expr_constant(self, p):
+        """
+        expr : ID
+        """
+        p[0] = ast.Constant(p[1])
 
     ################################
     ## Misc
@@ -63,7 +90,7 @@ class PythonParser:
     #     pass
 
     def p_error(self, p):
-        print("Syntax error at token", p)
+        print("Syntax error at token", repr(p.value))
 
     def build(self, **kwargs):
         self.tokens = tokens
