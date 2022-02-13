@@ -88,6 +88,13 @@ class PythonParser:
         print("float")
         p[0] = ast.Constant(p[1], 'float')
 
+    def p_expr_string(self, p):
+        """
+        expr : STRING
+        """
+        print("string")
+        p[0] = ast.Constant(p[1], 'str')
+
     def p_expr_id(self, p):
         """
         expr : ID
