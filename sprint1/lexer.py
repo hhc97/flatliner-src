@@ -177,7 +177,8 @@ class PythonLexer:
         return self.make_token('INDENT', lineno, lexpos)
 
     def track_tokens_filter(self, lexer, tokens):
-        lexer.at_line_start = at_line_start = True
+        lexer.at_line_start = True
+        at_line_start = True
         indent = NO_INDENT
         for token in tokens:
             token.at_line_start = at_line_start
