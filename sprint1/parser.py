@@ -16,6 +16,8 @@ class PythonParser:
     """
 
     precedence = (
+        ('left', 'PLUS', 'MINUS'),
+        ('left', 'TIMES', 'DIVIDE'),
     )
 
     # basic operators
