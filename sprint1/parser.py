@@ -51,6 +51,26 @@ class PythonParser:
     ################################
     ## Expressions
     ################################
+    def p_expr_compare(self, p):
+        """
+        expr : expr GREATER expr
+             | expr LESSER expr
+             | expr GREATEREQ expr
+             | expr LESSEREQ expr
+             | expr EQ expr
+             | expr NEQ expr
+        """
+        print("compare op")
+        op_map = {
+            '>': ast.Gt(),
+            '<': ast.Lt(),
+            '>=': ast.GtE(),
+            '<=': ast.LtE(),
+            '==': ast.Eq(),
+            '!=': ast.NotEq(),
+        }
+        p[0] = ast.Compare(p[1], [op_map[p[2]]], [p[3]])
+
     def p_expr_binops(self, p):
         """
         expr : expr PLUS expr
