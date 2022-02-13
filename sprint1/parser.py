@@ -52,10 +52,10 @@ class PythonParser:
     ################################
     ## Expressions
     ################################
-    def p_expr_bool(self, p):
+    def p_expr_boolop(self, p):
         """
-        expr : expr AND expr
-             | expr OR expr
+        expr : expr OR expr
+             | expr AND expr
         """
         print("bool op")
         op_map = {
@@ -157,7 +157,7 @@ class PythonParser:
     #     pass
 
     def p_error(self, p):
-        print("Syntax error at token", repr(p.value))
+        print("Syntax error at token", repr(p.value), p)
 
     def build(self, **kwargs):
         self.tokens = tokens
