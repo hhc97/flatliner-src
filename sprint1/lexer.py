@@ -84,16 +84,20 @@ class PythonLexer:
         r'\"\"\"'
         t.lexer.pop_state()
 
-    t_ignore_COMMENT = r'\#.*'
+    def t_BOOLEAN(self, t):
+        r'(?:True|False)'
+        t.value = t.value == 'True'
+        return t
 
+    t_ignore_COMMENT = r'\#.*'
     t_STRING = r'[\'\"].*[\'\"]'
+
     def t_ID(self, t):
         r'[a-zA-Z_:,][a-zA-Z_0-9]*'
         t.type = reserved.get(t.value, 'ID')  # Check for reserved words
         return t
 
     # Regular expression rule with some action code
-    t_BOOLEAN = r'(?:True|False)'
 
     # math
     t_PLUS = r'\+'
@@ -103,7 +107,7 @@ class PythonLexer:
     t_PE = r'\+\='
     t_ME = r'\-\='
 
-    # boolean
+    # boolean algebra
     t_OR = r'or'
     t_AND = r'and'
     t_GREATER = r'>'
@@ -161,6 +165,7 @@ class PythonLexer:
         self.tokens = tokens
         self.paren_count = 0
         self.lexer = lex.lex(module=self, **kwargs)
+        self.lexer.at_line_start = False
 
     def make_token(self, type, lineno, lexpos):
         tok = lex.LexToken()
