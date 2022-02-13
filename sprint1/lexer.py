@@ -63,7 +63,6 @@ tokens = [
 
 
 class PythonLexer:
-
     states = (
         ("COMMENT", "exclusive"),
     )
@@ -119,27 +118,27 @@ class PythonLexer:
     t_LBRACE = r'\['
     t_RBRACE = r'\]'
 
-    def t_LPAREN(self,t):
+    def t_LPAREN(self, t):
         r'\('
         self.paren_count += 1
         return t
-    
-    def t_RPAREN(self,t):
+
+    def t_RPAREN(self, t):
         r'\)'
         self.paren_count -= 1
         return t
 
-    def t_WS(self,t):
+    def t_WS(self, t):
         r' [ ]+ '
         if self.lexer.at_line_start and self.paren_count == 0:
             return t
 
-    def t_FLOAT(self,t):
-        '[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'        
+    def t_FLOAT(self, t):
+        '[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'
         t.value = float(t.value)
         return t
 
-    def t_NUMBER(self,t):
+    def t_NUMBER(self, t):
         r'\d+'
         t.value = int(t.value)
         return t
@@ -151,7 +150,6 @@ class PythonLexer:
         t.type = "NEWLINE"
         if self.paren_count == 0:
             return t
-
 
     # Error handling rule. DO NOT MODIFY
     def t_error(self, t):
@@ -166,19 +164,19 @@ class PythonLexer:
 
     def make_token(self, type, lineno, lexpos):
         tok = lex.LexToken()
-        tok.type = type 
-        tok.value = None 
+        tok.type = type
+        tok.value = None
         tok.lineno = lineno
         tok.lexpos = lexpos
         return tok
 
-    def dedent(self,lineno,lexpos):
-        return self.make_token('DEDENT',lineno,lexpos)
+    def dedent(self, lineno, lexpos):
+        return self.make_token('DEDENT', lineno, lexpos)
 
-    def indent(self,lineno,lexpos):
-        return self.make_token('INDENT',lineno,lexpos)
+    def indent(self, lineno, lexpos):
+        return self.make_token('INDENT', lineno, lexpos)
 
-    def track_tokens_filter(self,lexer, tokens):
+    def track_tokens_filter(self, lexer, tokens):
         lexer.at_line_start = at_line_start = True
         indent = NO_INDENT
         for token in tokens:
@@ -211,8 +209,8 @@ class PythonLexer:
 
             yield token
             lexer.at_line_start = at_line_start
-    
-    def process_indentation(self,tokens):
+
+    def process_indentation(self, tokens):
         levels = [0]
         token = None
         depth = 0
@@ -240,7 +238,7 @@ class PythonLexer:
                     raise IndentationError("expected an indented block")
 
                 levels.append(depth)
-                yield self.indent(token.lineno,token.lexpos)
+                yield self.indent(token.lineno, token.lexpos)
 
             elif token.at_line_start:
                 # Must be on the same level or one of the previous levels
@@ -257,21 +255,20 @@ class PythonLexer:
                     except ValueError:
                         raise IndentationError("inconsistent indentation")
                     for _ in range(i + 1, len(levels)):
-                        yield self.dedent(token.lineno,token.lexpos)
+                        yield self.dedent(token.lineno, token.lexpos)
                         levels.pop()
 
             yield token
         if len(levels) > 1:
             for _ in range(1, len(levels)):
-                yield self.dedent(token.lineno,token.lexpos)
+                yield self.dedent(token.lineno, token.lexpos)
 
     def process(self, lexer):
-        yield self.make_token('PROGRAM',0,0)
+        yield self.make_token('PROGRAM', 0, 0)
         tokens = iter(lexer.token, None)
-        tokens = self.track_tokens_filter(lexer,tokens)
+        tokens = self.track_tokens_filter(lexer, tokens)
         for token in self.process_indentation(tokens):
             yield token
-
 
     def test(self, data):
         self.lexer.input(data)
