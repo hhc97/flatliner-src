@@ -2,6 +2,10 @@ import argparse
 
 from ply import lex
 
+NO_INDENT = 0
+MAY_INDENT = 1
+MUST_INDENT = 2
+
 # Reserved words
 reserved = {
     'if': 'IF',
@@ -21,7 +25,6 @@ tokens = [
              'NUMBER',
              'ASSIGN',
              'LETTER',
-             'INDENT',
              'PLUS',
              'MINUS',
              'TIMES',
@@ -46,18 +49,20 @@ tokens = [
              'EQ',
 
              'COMMENT',
+             'NEWLINE',
 
              'LPAREN',
              'RPAREN',
              'LBRACE',
              'RBRACE',
-             'LCURLY',
-             'RCURLY'
+             'WS',
+
+             'DEDENT',
+             'INDENT'
          ] + list(reserved.values())
 
 
 class PythonLexer:
-    t_ignore = ' \t'
 
     states = (
         ("COMMENT", "exclusive"),
@@ -110,11 +115,24 @@ class PythonLexer:
     t_LESSEREQ = r'<='
 
     # other 
-    t_LPAREN = r'\('
-    t_RPAREN = r'\)'
 
     t_LBRACE = r'\['
     t_RBRACE = r'\]'
+
+    def t_LPAREN(self,t):
+        r'\('
+        self.paren_count += 1
+        return t
+    
+    def t_RPAREN(self,t):
+        r'\)'
+        self.paren_count -= 1
+        return t
+
+    def t_WS(self,t):
+        r' [ ]+ '
+        if self.lexer.at_line_start and self.paren_count == 0:
+            return t
 
     def t_FLOAT(self,t):
         '[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'        
@@ -130,26 +148,142 @@ class PythonLexer:
     def t_newline(self, t):
         r'\n+'
         t.lexer.lineno += len(t.value)
+        t.type = "NEWLINE"
+        if self.paren_count == 0:
+            return t
+
 
     # Error handling rule. DO NOT MODIFY
     def t_error(self, t):
         print("Illegal character '%s'" % t.value[0])
         t.lexer.skip(1)
 
-    # Build the lexer. DO NOT MODIFY
+    # Lexer functions
     def build(self, **kwargs):
         self.tokens = tokens
+        self.paren_count = 0
         self.lexer = lex.lex(module=self, **kwargs)
 
-    # Test the output. DO NOT MODIFY
+    def make_token(self, type, lineno, lexpos):
+        tok = lex.LexToken()
+        tok.type = type 
+        tok.value = None 
+        tok.lineno = lineno
+        tok.lexpos = lexpos
+        return tok
+
+    def dedent(self,lineno,lexpos):
+        return self.make_token('DEDENT',lineno,lexpos)
+
+    def indent(self,lineno,lexpos):
+        return self.make_token('INDENT',lineno,lexpos)
+
+    def track_tokens_filter(self,lexer, tokens):
+        lexer.at_line_start = at_line_start = True
+        indent = NO_INDENT
+        for token in tokens:
+            token.at_line_start = at_line_start
+
+            if token.type == "COLON":
+                at_line_start = False
+                indent = MAY_INDENT
+                token.must_indent = False
+
+            elif token.type == "NEWLINE":
+                at_line_start = True
+                if indent == MAY_INDENT:
+                    indent = MUST_INDENT
+                token.must_indent = False
+
+            elif token.type == "WS":
+                assert token.at_line_start == True
+                at_line_start = True
+                token.must_indent = False
+
+            else:
+                # A real token; only indent after COLON NEWLINE
+                if indent == MUST_INDENT:
+                    token.must_indent = True
+                else:
+                    token.must_indent = False
+                at_line_start = False
+                indent = NO_INDENT
+
+            yield token
+            lexer.at_line_start = at_line_start
+    
+    def process_indentation(self,tokens):
+        levels = [0]
+        token = None
+        depth = 0
+        prev_was_ws = False
+        for token in tokens:
+            if token.type == "WS":
+                assert depth == 0
+                depth = len(token.value)
+                prev_was_ws = True
+                # WS tokens are never passed to the parser
+                continue
+
+            if token.type == "NEWLINE":
+                depth = 0
+                if prev_was_ws or token.at_line_start:
+                    # ignore blank lines
+                    continue
+                # pass the other cases on through
+                yield token
+                continue
+            prev_was_ws = False
+            if token.must_indent:
+                # The current depth must be larger than the previous level
+                if not (depth > levels[-1]):
+                    raise IndentationError("expected an indented block")
+
+                levels.append(depth)
+                yield self.indent(token.lineno,token.lexpos)
+
+            elif token.at_line_start:
+                # Must be on the same level or one of the previous levels
+                if depth == levels[-1]:
+                    # At the same level
+                    pass
+                elif depth > levels[-1]:
+                    raise IndentationError(
+                        "indentation increase but not in new block")
+                else:
+                    # Back up; but only if it matches a previous level
+                    try:
+                        i = levels.index(depth)
+                    except ValueError:
+                        raise IndentationError("inconsistent indentation")
+                    for _ in range(i + 1, len(levels)):
+                        yield self.dedent(token.lineno,token.lexpos)
+                        levels.pop()
+
+            yield token
+        if len(levels) > 1:
+            for _ in range(1, len(levels)):
+                yield self.dedent(token.lineno,token.lexpos)
+
+    def process(self, lexer):
+        yield self.make_token('PROGRAM',0,0)
+        tokens = iter(lexer.token, None)
+        tokens = self.track_tokens_filter(lexer,tokens)
+        for token in self.process_indentation(tokens):
+            yield token
+
 
     def test(self, data):
         self.lexer.input(data)
+        self.token_generator = self.process(self.lexer)
         while True:
-            tok = self.lexer.token()
-            if not tok:
+            try:
+                tok = next(self.token_generator)
+            except StopIteration:
                 break
             print(tok)
+            if not tok:
+                break
 
 
 # Main function. DO NOT MODIFY
