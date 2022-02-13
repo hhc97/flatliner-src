@@ -23,6 +23,16 @@ class PythonParser:
     ################################
     ## Statements
     ################################
+    
+    def p_statement_list(self, p):
+        """
+        stmt_lst : stmt_lst stmt
+                 | stmt
+        """
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1] + [p[2]]
 
     def p_statement(self, p):
         """
