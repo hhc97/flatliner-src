@@ -19,11 +19,11 @@ class PythonParser:
         ('left', 'PLUS', 'MINUS'),
         ('left', 'TIMES', 'DIVIDE'),
     )
-    
+
     ################################
     ## Statements
     ################################
-    
+
     def p_statement_list(self, p):
         """
         stmt_lst : stmt_lst stmt
@@ -47,7 +47,7 @@ class PythonParser:
         """
         print("assign")
         p[0] = ast.Assign([ast.Name(p[1], ast.Store())], p[3], lineno=p.lineno)
-    
+
     ################################
     ## Expressions
     ################################
@@ -66,7 +66,7 @@ class PythonParser:
             '/': ast.Div(),
         }
         p[0] = ast.BinOp(p[1], op_map[p[2]], p[3])
-    
+
     def p_expr_number(self, p):
         """
         expr : NUMBER
@@ -78,13 +78,13 @@ class PythonParser:
         """
         expr : BOOLEAN
         """
-        p[0] = ast.Constant(p[1]) 
+        p[0] = ast.Constant(p[1])
 
     def p_expr_constant(self, p):
         """
         expr : ID
         """
-        p[0] = ast.Constant(p[1])
+        p[0] = ast.Name(p[1], ast.Load())
 
     ################################
     ## Misc
@@ -110,7 +110,7 @@ class PythonParser:
 
     def test(self, data):
         result = self.parser.parse(data)
-        # result = ast.Module([result], [])
+        result = ast.Module(result, [])
         print(result)
         print(ast.dump(result, indent=4))
         print(ast.unparse(result))
