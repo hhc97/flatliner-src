@@ -52,7 +52,8 @@ tokens = [
              'LBRACE',
              'RBRACE',
              'LCURLY',
-             'RCURLY'
+             'RCURLY',
+             'NEWLINE',
          ] + list(reserved.values())
 
 
@@ -116,12 +117,12 @@ class PythonLexer:
     t_LBRACE = r'\['
     t_RBRACE = r'\]'
 
-    def t_FLOAT(self,t):
-        '[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'        
+    def t_FLOAT(self, t):
+        '[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'
         t.value = float(t.value)
         return t
 
-    def t_NUMBER(self,t):
+    def t_NUMBER(self, t):
         r'\d+'
         t.value = int(t.value)
         return t
@@ -129,7 +130,9 @@ class PythonLexer:
     # Define a rule so we can track line numbers. DO NOT MODIFY
     def t_newline(self, t):
         r'\n+'
+        t.type = 'NEWLINE'
         t.lexer.lineno += len(t.value)
+        return t
 
     # Error handling rule. DO NOT MODIFY
     def t_error(self, t):
