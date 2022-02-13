@@ -72,6 +72,7 @@ class PythonParser:
              | expr LESSEREQ expr
              | expr EQ expr
              | expr NEQ expr
+             | expr IN expr
         """
         print("compare op")
         op_map = {
@@ -81,6 +82,7 @@ class PythonParser:
             '<=': ast.LtE(),
             '==': ast.Eq(),
             '!=': ast.NotEq(),
+            'in': ast.In(),
         }
         p[0] = ast.Compare(p[1], [op_map[p[2]]], [p[3]])
 
