@@ -18,6 +18,12 @@ reserved = {
     ',': 'COMMA',
     'or': 'OR',
     'and': 'AND',
+    'def': 'DEF',
+    'None': 'NONE',
+    'elif': 'ELIF',
+    'in': 'IN',
+    'not': 'NOT',
+    'pass': 'PASS',
 }
 # List of token names. This is always required
 tokens = [
