@@ -1,5 +1,4 @@
-a = 5
-b = 3
-d = 3.0
+a = 1 + 2
+b = 3 + 4.0
 c = a + b
-print(c)
+d = "Hi there"

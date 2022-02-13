@@ -23,8 +23,8 @@ tokens = [
              'BOOLEAN',
              'FLOAT',
              'NUMBER',
+             'STRING',
              'ASSIGN',
-             'LETTER',
              'PLUS',
              'MINUS',
              'TIMES',
@@ -86,13 +86,13 @@ class PythonLexer:
 
     t_ignore_COMMENT = r'\#.*'
 
+    t_STRING = r'[\'\"].*[\'\"]'
     def t_ID(self, t):
         r'[a-zA-Z_:,][a-zA-Z_0-9]*'
         t.type = reserved.get(t.value, 'ID')  # Check for reserved words
         return t
 
     # Regular expression rule with some action code
-    t_LETTER = r'[\'\"][a-zA-Z]+[\'\"]'
     t_BOOLEAN = r'(?:True|False)'
 
     # math
