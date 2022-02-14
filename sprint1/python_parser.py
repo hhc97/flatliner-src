@@ -315,9 +315,9 @@ class PythonParser:
     def test(self, data):
         result = self.get_ast(data)
         try:
-            printd(result)
-            printd(ast.dump(result, indent=4))
-            printd(ast.unparse(result))
+            print(result)
+            print(ast.dump(result, indent=4))
+            print(ast.unparse(result))
         except Exception as e:
             print("Something went wrong lmao 😂")
             print(e)
