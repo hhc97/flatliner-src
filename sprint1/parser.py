@@ -26,7 +26,7 @@ class PythonParser:
     ################################
     # def p_block(self, p):
     #     """
-    #     block : INDENT stmts_or_empty DEDENT
+    #     block : INDENT stmt_lst DEDENT
     #     """
     #     print("block")
     #     p[0] = p[2]
@@ -61,9 +61,34 @@ class PythonParser:
     def p_if_statement(self, p):
         """
         if_stmt : IF expr COLON NEWLINE INDENT stmt_lst DEDENT
+                | IF expr COLON NEWLINE INDENT stmt_lst DEDENT elif_stmt
+                | IF expr COLON NEWLINE INDENT stmt_lst DEDENT else_stmt
         """
         print("if statement")
-        p[0] = ast.If(p[2], [p[6]], [ast.Pass()])
+        if len(p) == 9:
+            p[0] = ast.If(p[2], [p[6]], [p[8]])
+        else:
+            p[0] = ast.If(p[2], [p[6]], [])
+
+    def p_elif(self, p):
+        """
+        elif_stmt : ELIF expr COLON NEWLINE INDENT stmt_lst DEDENT elif_stmt
+                  | ELIF expr COLON NEWLINE INDENT stmt_lst DEDENT else_stmt
+                  | ELIF expr COLON NEWLINE INDENT stmt_lst DEDENT
+        """
+        print("or else")
+        if len(p) == 9:
+            p[0] = ast.If(p[2], [p[6]], [p[8]])
+        else:
+            p[0] = ast.If(p[2], [p[6]], [])
+
+    def p_else(self, p):
+        """
+        else_stmt : ELSE COLON NEWLINE INDENT stmt_lst DEDENT
+        """
+        print("or else")
+        p[0] = p[5]
+        
 
     def p_assignment_statement(self, p):
         """
@@ -194,7 +219,7 @@ class PythonParser:
         self.parser = yacc.yacc(module=self, **kwargs)
 
     def test(self, data):
-        result = self.parser.parse(data, tokenfunc=self.lexer.get_token_external, debug = True)
+        result = self.parser.parse(data, tokenfunc=self.lexer.get_token_external) # debug = True)
         result = ast.Module(result, [])
         try:
             print(result)
