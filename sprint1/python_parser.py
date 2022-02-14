@@ -248,7 +248,6 @@ class PythonParser:
         except Exception as e:
             print("Something went wrong lmao 😂")
             print(e)
-            raise
         visitor = ast.NodeVisitor()
         visitor.visit(result)
 
