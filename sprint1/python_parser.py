@@ -9,7 +9,7 @@ from lexer import PythonLexer
 # Get the token map from the lexer. This is required.
 from lexer import tokens
 
-
+DEBUG = False
 class PythonParser:
     """
     A parser for a small subset of the Python programming language.
@@ -26,13 +26,6 @@ class PythonParser:
     ################################
     ## Statements
     ################################
-    # def p_block(self, p):
-    #     """
-    #     block : INDENT stmt_lst DEDENT
-    #     """
-    #     print("block")
-    #     p[0] = p[2]
-
     def p_statements_or_empty(self, p):
         """
         stmts_or_empty : stmt_lst
@@ -58,9 +51,17 @@ class PythonParser:
              | if_stmt
              | while_stmt
              | for_stmt
+             | func_defn
         """
         print("statement")
         p[0] = p[1]
+
+    def p_func_defn(self, p):
+        """
+        func_defn : DEF ID params COLON NEWLINE INDENT stmt_lst DEDENT
+        """
+        #p[2] = ast.Name(p[2], ast.Store())
+        p[0] = ast.FunctionDef(p[2], p[3], p[7], decorator_list = [], lineno = p.lineno)
 
     def p_for_stmt(self, p):
         """
@@ -117,6 +118,26 @@ class PythonParser:
     ################################
     ## Expressions
     ################################
+    
+    def p_params(self, p):
+        """
+        params : LPAREN paramlst RPAREN
+        """
+        print("params")
+        p[0] = ast.arguments([], p[2], [], [], [], [], [])
+
+    def p_paramlst(self, p):
+        """
+        paramlst : paramlst COMMA ID
+              | ID
+        """
+        print("param list")
+        if len(p) == 2:
+            p[0] = [ast.arg(p[1])]
+        else:
+            print("p1", p[1])
+            p[0] = p[1] + [ast.arg(p[3])]
+
     def p_expr_boolop(self, p):
         """
         expr : expr OR expr
@@ -239,7 +260,7 @@ class PythonParser:
         """
         returns the ast representation of <data>
         """
-        return ast.Module(self.parser.parse(data, tokenfunc=self.lexer.get_token_external), [])
+        return ast.Module(self.parser.parse(data, tokenfunc=self.lexer.get_token_external, debug = DEBUG), [])
 
     def test(self, data):
         result = self.get_ast(data)
