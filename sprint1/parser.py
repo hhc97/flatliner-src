@@ -54,9 +54,17 @@ class PythonParser:
         """
         stmt : assign_stmt
              | if_stmt
+             | while_stmt
         """
         print("statement")
         p[0] = p[1]
+    
+    def p_while_stmt(self, p):
+        """
+        while_stmt : WHILE expr COLON NEWLINE INDENT stmt_lst DEDENT
+        """
+        p[0] = ast.While(p[2], [p[6]], [])
+
 
     def p_if_statement(self, p):
         """
