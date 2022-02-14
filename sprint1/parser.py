@@ -24,12 +24,27 @@ class PythonParser:
     ################################
     ## Statements
     ################################
+    # def p_block(self, p):
+    #     """
+    #     block : INDENT stmt_list DEDENT
+    #     """
+    #     print("block")
+    #     p[0] = p[2]
 
+    def p_statements_or_empty(self, p):
+        """
+        stmts_or_empty : stmt_lst
+                       | empty
+        """
+        print("statements or empty")
+        p[0] = p[1]
+    
     def p_statement_list(self, p):
         """
         stmt_lst : stmt_lst stmt
                  | stmt
         """
+        print("statement list")
         if len(p) == 2:
             p[0] = [p[1]]
         else:
@@ -38,9 +53,17 @@ class PythonParser:
     def p_statement(self, p):
         """
         stmt : assign_stmt
+             | if_stmt
         """
         print("statement")
         p[0] = p[1]
+
+    def p_if_statement(self, p):
+        """
+        if_stmt : IF expr COLON NEWLINE INDENT assign_stmt DEDENT
+        """
+        print("if statement")
+        p[0] = ast.If(p[2], [ast.Pass()], [ast.Pass()])
 
     def p_assignment_statement(self, p):
         """
@@ -154,9 +177,9 @@ class PythonParser:
     #
     #       optitem : item
     #               | empty
-    # def p_empty(self, p):
-    #     """empty :"""
-    #     pass
+    def p_empty(self, p):
+        """empty :"""
+        pass
 
     def p_error(self, p):
         print("Syntax error at token", repr(p.value), p)
@@ -178,11 +201,11 @@ class PythonParser:
 
 
 if __name__ == "__main__":
-    argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')
-    argparser.add_argument('FILE', help='Input file with python source code')
-    args = argparser.parse_args()
+    #argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')
+    #argparser.add_argument('FILE', help='Input file with python source code')
+    #args = argparser.parse_args()
 
-    f = open(args.FILE, 'r')
+    f = open('test_input.py', 'r')
     data = f.read()
     f.close()
 

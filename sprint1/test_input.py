@@ -1,6 +1,3 @@
-a = 5
+if 5 < 4:
+    a = 3
 
-if a > 1:
-    e = False
-else:
-    e = True
