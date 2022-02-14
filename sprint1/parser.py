@@ -26,7 +26,7 @@ class PythonParser:
     ################################
     # def p_block(self, p):
     #     """
-    #     block : INDENT stmt_list DEDENT
+    #     block : INDENT stmts_or_empty DEDENT
     #     """
     #     print("block")
     #     p[0] = p[2]
@@ -60,10 +60,10 @@ class PythonParser:
 
     def p_if_statement(self, p):
         """
-        if_stmt : IF expr COLON NEWLINE INDENT assign_stmt DEDENT
+        if_stmt : IF expr COLON NEWLINE stmt_lst
         """
         print("if statement")
-        p[0] = ast.If(p[2], [ast.Pass()], [ast.Pass()])
+        p[0] = ast.If(p[2], [p[5]], [ast.Pass()])
 
     def p_assignment_statement(self, p):
         """
@@ -182,7 +182,10 @@ class PythonParser:
         pass
 
     def p_error(self, p):
-        print("Syntax error at token", repr(p.value), p)
+        if p:
+            print("Syntax error at token", repr(p.value), p)
+        else:
+            print("None type:", p)
 
     def build(self, **kwargs):
         self.tokens = tokens
@@ -193,9 +196,12 @@ class PythonParser:
     def test(self, data):
         result = self.parser.parse(data)
         result = ast.Module(result, [])
-        print(result)
-        print(ast.dump(result, indent=4))
-        print(ast.unparse(result))
+        try:
+            print(result)
+            print(ast.dump(result, indent=4))
+            print(ast.unparse(result))
+        except:
+            print("Something went wrong")
         visitor = ast.NodeVisitor()
         visitor.visit(result)
 
