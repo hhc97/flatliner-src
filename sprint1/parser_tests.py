@@ -35,15 +35,15 @@ def compare_parser(test_input_filepath: str) -> None:
 
 
 def test_assignments():
-    compare_parser('../code_examples/assignments.py')
+    compare_parser('code_examples/assignments.py')
 
 
 def test_loops():
-    compare_parser('./samples/loops.py')
+    compare_parser('test_inputs/loops.py')
 
 
 def test_ifs():
-    compare_parser('./samples/ifs_test.py')
+    compare_parser('test_inputs/ifs_test.py')
 
 
 def run_tests() -> None:
