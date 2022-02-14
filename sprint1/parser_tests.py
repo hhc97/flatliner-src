@@ -46,6 +46,10 @@ def test_ifs():
     compare_parser('test_inputs/ifs_test.py')
 
 
+def test_comprehensive():
+    compare_parser('test_inputs/comprehensive.py')
+
+
 def run_tests() -> None:
     """
     Runs all tests in this file if run as main.
