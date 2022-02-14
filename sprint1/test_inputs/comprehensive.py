@@ -51,3 +51,11 @@ def func_no_return(a, b):
 
 def func():
     return 6
+
+
+def harder_func(a, b, c):
+    if a:
+        return 4
+    elif b:
+        return 9
+    return 0
