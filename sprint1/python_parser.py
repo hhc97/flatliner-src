@@ -233,9 +233,14 @@ class PythonParser:
         self.lexer.build()
         self.parser = yacc.yacc(module=self, **kwargs)
 
+    def get_ast(self, data):
+        """
+        returns the ast representation of <data>
+        """
+        return ast.Module(self.parser.parse(data, tokenfunc=self.lexer.get_token_external), [])
+
     def test(self, data):
-        result = self.parser.parse(data, tokenfunc=self.lexer.get_token_external)  # debug = True)
-        result = ast.Module(result, [])
+        result = self.get_ast(data)
         try:
             print(result)
             print(ast.dump(result, indent=4))
