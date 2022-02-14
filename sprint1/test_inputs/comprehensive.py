@@ -34,3 +34,20 @@ thing = a or b
 compilers = suffering and torture
 
 string = 'string'
+
+
+def test(a, b, c, d, e, f, g):
+    thing = a
+    for item in thing:
+        do = 8
+        while True:
+            loop_stuff = 6
+    return 9
+
+
+def func_no_return(a, b):
+    b = 6
+
+
+def func():
+    return 6

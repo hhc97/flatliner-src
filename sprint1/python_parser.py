@@ -10,6 +10,8 @@ from lexer import PythonLexer
 from lexer import tokens
 
 DEBUG = False
+
+
 class PythonParser:
     """
     A parser for a small subset of the Python programming language.
@@ -60,8 +62,8 @@ class PythonParser:
         """
         func_defn : DEF ID params COLON NEWLINE INDENT stmt_lst DEDENT
         """
-        #p[2] = ast.Name(p[2], ast.Store())
-        p[0] = ast.FunctionDef(p[2], p[3], p[7], decorator_list = [], lineno = p.lineno)
+        # p[2] = ast.Name(p[2], ast.Store())
+        p[0] = ast.FunctionDef(p[2], p[3], p[7], decorator_list=[], lineno=p.lineno)
 
     def p_for_stmt(self, p):
         """
@@ -118,7 +120,7 @@ class PythonParser:
     ################################
     ## Expressions
     ################################
-    
+
     def p_params(self, p):
         """
         params : LPAREN paramlst RPAREN
@@ -260,7 +262,7 @@ class PythonParser:
         """
         returns the ast representation of <data>
         """
-        return ast.Module(self.parser.parse(data, tokenfunc=self.lexer.get_token_external, debug = DEBUG), [])
+        return ast.Module(self.parser.parse(data, tokenfunc=self.lexer.get_token_external, debug=DEBUG), [])
 
     def test(self, data):
         result = self.get_ast(data)
