@@ -200,9 +200,9 @@ class PythonParser:
             print(result)
             print(ast.dump(result, indent=4))
             print(ast.unparse(result))
-        except:
-            print("Something went wrong")
-            raise
+        except Exception as e:
+            print("Something went wrong lmao 😂")
+            print(e)
         visitor = ast.NodeVisitor()
         visitor.visit(result)
 
