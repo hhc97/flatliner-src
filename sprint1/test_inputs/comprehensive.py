@@ -1,5 +1,6 @@
 a = 5
-b = 6
+b = 6.0
+c = b + 5.4
 
 for thing in 5:
     other = 3
