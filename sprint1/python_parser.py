@@ -50,7 +50,7 @@ class PythonParser:
     #     print(len(p))
     #     if not isinstance(p[1], list):
     #         p[1] = [p[1]]
-        
+
     #     if len(p) == 3:
     #         if not isinstance(p[2], list):
     #             p[2] = [p[2]]
@@ -89,8 +89,6 @@ class PythonParser:
         # p[2] = ast.Name(p[2], ast.Store())
         p[0] = ast.FunctionDef(p[2], p[3], p[7], decorator_list=[], lineno=p.lineno)
 
-            
-    
     def p_for_stmt(self, p):
         """
         for_stmt : FOR ID IN expr COLON NEWLINE INDENT stmt_lst DEDENT
@@ -116,7 +114,7 @@ class PythonParser:
             p[0] = ast.If(p[2], [p[6]], [p[8]])
         else:
             p[0] = ast.If(p[2], [p[6]], [])
-    
+
     def p_return_statement(self, p):
         """
         return : RETURN expr NEWLINE
@@ -159,7 +157,7 @@ class PythonParser:
         params : LPAREN params_or_empty RPAREN
         """
         print("this is p", p[2])
-        
+
         p[0] = ast.arguments([], p[2] if p[2] else [], [], [], [], [], [])
 
     def p_params_or_empty(self, p):
@@ -171,7 +169,7 @@ class PythonParser:
             p[0] = []
         else:
             p[0] = p[1]
-    
+
     def p_paramlst(self, p):
         """
         paramlst : paramlst COMMA ID

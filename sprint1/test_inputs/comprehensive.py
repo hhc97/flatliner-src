@@ -59,3 +59,16 @@ def harder_func(a, b, c):
     elif b:
         return 9
     return 0
+
+
+def return_in_loops(a, b):
+    for i in a:
+        return b
+    for b in c:
+        return a
+    while 0:
+        return 8
+    while 1:
+        while 2:
+            return b
+    return 9
