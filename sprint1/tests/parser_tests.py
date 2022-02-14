@@ -42,6 +42,10 @@ def test_loops():
     compare_parser('./samples/loops.py')
 
 
+def test_ifs():
+    compare_parser('./samples/ifs_test.py')
+
+
 def run_tests() -> None:
     """
     Runs all tests in this file if run as main.
