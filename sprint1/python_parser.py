@@ -36,6 +36,28 @@ class PythonParser:
         print("statements or empty")
         p[0] = p[1]
 
+    # def p_func_body(self, p):
+    #     """
+    #     func_body : func_body stmt_lst
+    #               | func_body return
+    #               | return stmt_lst
+    #               | stmt_lst return
+    #               | stmt_lst
+    #               | return
+
+    #     """
+    #     print("function body")
+    #     print(len(p))
+    #     if not isinstance(p[1], list):
+    #         p[1] = [p[1]]
+        
+    #     if len(p) == 3:
+    #         if not isinstance(p[2], list):
+    #             p[2] = [p[2]]
+    #         p[0] = p[1] + p[2]
+    #     else:
+    #         p[0] = p[1]
+
     def p_statement_list(self, p):
         """
         stmt_lst : stmt_lst stmt
@@ -54,6 +76,7 @@ class PythonParser:
              | while_stmt
              | for_stmt
              | func_defn
+             | return
         """
         print("statement")
         p[0] = p[1]
@@ -61,10 +84,13 @@ class PythonParser:
     def p_func_defn(self, p):
         """
         func_defn : DEF ID params COLON NEWLINE INDENT stmt_lst DEDENT
+                  | 
         """
         # p[2] = ast.Name(p[2], ast.Store())
         p[0] = ast.FunctionDef(p[2], p[3], p[7], decorator_list=[], lineno=p.lineno)
 
+            
+    
     def p_for_stmt(self, p):
         """
         for_stmt : FOR ID IN expr COLON NEWLINE INDENT stmt_lst DEDENT
@@ -90,6 +116,13 @@ class PythonParser:
             p[0] = ast.If(p[2], [p[6]], [p[8]])
         else:
             p[0] = ast.If(p[2], [p[6]], [])
+    
+    def p_return_statement(self, p):
+        """
+        return : RETURN expr NEWLINE
+        """
+        print('return')
+        p[0] = ast.Return(p[2])
 
     def p_elif(self, p):
         """
@@ -123,11 +156,22 @@ class PythonParser:
 
     def p_params(self, p):
         """
-        params : LPAREN paramlst RPAREN
+        params : LPAREN params_or_empty RPAREN
         """
-        print("params")
-        p[0] = ast.arguments([], p[2], [], [], [], [], [])
+        print("this is p", p[2])
+        
+        p[0] = ast.arguments([], p[2] if p[2] else [], [], [], [], [], [])
 
+    def p_params_or_empty(self, p):
+        """
+        params_or_empty : paramlst
+                        | empty
+        """
+        if len(p) == 1:
+            p[0] = []
+        else:
+            p[0] = p[1]
+    
     def p_paramlst(self, p):
         """
         paramlst : paramlst COMMA ID
