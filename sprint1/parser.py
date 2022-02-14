@@ -63,7 +63,7 @@ class PythonParser:
         if_stmt : IF expr COLON NEWLINE INDENT stmt_lst DEDENT
         """
         print("if statement")
-        p[0] = ast.If(p[2], [p[5]], [ast.Pass()])
+        p[0] = ast.If(p[2], [p[6]], [ast.Pass()])
 
     def p_assignment_statement(self, p):
         """
@@ -194,7 +194,7 @@ class PythonParser:
         self.parser = yacc.yacc(module=self, **kwargs)
 
     def test(self, data):
-        result = self.parser.parse(data, tokenfunc=self.lexer.get_token_external)
+        result = self.parser.parse(data, tokenfunc=self.lexer.get_token_external, debug = True)
         result = ast.Module(result, [])
         try:
             print(result)
@@ -203,6 +203,7 @@ class PythonParser:
         except Exception as e:
             print("Something went wrong lmao 😂")
             print(e)
+            raise
         visitor = ast.NodeVisitor()
         visitor.visit(result)
 
