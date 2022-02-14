@@ -12,6 +12,12 @@ from lexer import tokens
 DEBUG = False
 
 
+def printd(*args, **kwargs):
+    """Printing for debugging"""
+    if DEBUG:
+        print(*args, **kwargs)
+
+
 class PythonParser:
     """
     A parser for a small subset of the Python programming language.
@@ -33,7 +39,7 @@ class PythonParser:
         stmts_or_empty : stmt_lst
                        | empty
         """
-        print("statements or empty")
+        printd("statements or empty")
         p[0] = p[1]
 
     # def p_func_body(self, p):
@@ -46,8 +52,8 @@ class PythonParser:
     #               | return
 
     #     """
-    #     print("function body")
-    #     print(len(p))
+    #     printd("function body")
+    #     printd(len(p))
     #     if not isinstance(p[1], list):
     #         p[1] = [p[1]]
 
@@ -63,7 +69,7 @@ class PythonParser:
         stmt_lst : stmt_lst stmt
                  | stmt
         """
-        print("statement list")
+        printd("statement list")
         if len(p) == 2:
             p[0] = [p[1]]
         else:
@@ -78,7 +84,7 @@ class PythonParser:
              | func_defn
              | return
         """
-        print("statement")
+        printd("statement")
         p[0] = p[1]
 
     def p_func_defn(self, p):
@@ -93,7 +99,7 @@ class PythonParser:
         """
         for_stmt : FOR ID IN expr COLON NEWLINE INDENT stmt_lst DEDENT
         """
-        print("For")
+        printd("For")
         p[2] = ast.Name(p[2], ast.Store())
         p[0] = ast.For(p[2], p[4], p[8], [], lineno=p.lineno)
 
@@ -109,7 +115,7 @@ class PythonParser:
                 | IF expr COLON NEWLINE INDENT stmt_lst DEDENT elif_stmt
                 | IF expr COLON NEWLINE INDENT stmt_lst DEDENT else_stmt
         """
-        print("if statement")
+        printd("if statement")
         if len(p) == 9:
             p[0] = ast.If(p[2], [p[6]], [p[8]])
         else:
@@ -119,7 +125,7 @@ class PythonParser:
         """
         return : RETURN expr NEWLINE
         """
-        print('return')
+        printd('return')
         p[0] = ast.Return(p[2])
 
     def p_elif(self, p):
@@ -128,7 +134,7 @@ class PythonParser:
                   | ELIF expr COLON NEWLINE INDENT stmt_lst DEDENT else_stmt
                   | ELIF expr COLON NEWLINE INDENT stmt_lst DEDENT
         """
-        print("or else")
+        printd("or else")
         if len(p) == 9:
             p[0] = ast.If(p[2], [p[6]], [p[8]])
         else:
@@ -138,14 +144,14 @@ class PythonParser:
         """
         else_stmt : ELSE COLON NEWLINE INDENT stmt_lst DEDENT
         """
-        print("or else")
+        printd("or else")
         p[0] = p[5]
 
     def p_assignment_statement(self, p):
         """
         assign_stmt :  ID ASSIGN expr NEWLINE
         """
-        print("assign")
+        printd("assign")
         p[0] = ast.Assign([ast.Name(p[1], ast.Store())], p[3], lineno=p.lineno)
 
     ################################
@@ -156,7 +162,7 @@ class PythonParser:
         """
         params : LPAREN params_or_empty RPAREN
         """
-        print("this is p", p[2])
+        printd("this is p", p[2])
 
         p[0] = ast.arguments([], p[2] if p[2] else [], [], [], [], [], [])
 
@@ -175,11 +181,11 @@ class PythonParser:
         paramlst : paramlst COMMA ID
               | ID
         """
-        print("param list")
+        printd("param list")
         if len(p) == 2:
             p[0] = [ast.arg(p[1])]
         else:
-            print("p1", p[1])
+            printd("p1", p[1])
             p[0] = p[1] + [ast.arg(p[3])]
 
     def p_expr_boolop(self, p):
@@ -187,7 +193,7 @@ class PythonParser:
         expr : expr OR expr
              | expr AND expr
         """
-        print("bool op")
+        printd("bool op")
         op_map = {
             'and': ast.And(),
             'or': ast.Or(),
@@ -204,7 +210,7 @@ class PythonParser:
              | expr NEQ expr
              | expr IN expr
         """
-        print("compare op")
+        printd("compare op")
         op_map = {
             '>': ast.Gt(),
             '<': ast.Lt(),
@@ -223,7 +229,7 @@ class PythonParser:
              | expr TIMES expr
              | expr DIVIDE expr
         """
-        print("binary op")
+        printd("binary op")
         op_map = {
             '+': ast.Add(),
             '-': ast.Sub(),
@@ -236,28 +242,28 @@ class PythonParser:
         """
         expr : NUMBER
         """
-        print("number")
+        printd("number")
         p[0] = ast.Constant(p[1], 'int')
 
     def p_expr_bool(self, p):
         """
         expr : BOOLEAN
         """
-        print('bool')
+        printd('bool')
         p[0] = ast.Constant(p[1], 'bool')
 
     def p_expr_float(self, p):
         """
         expr : FLOAT
         """
-        print("float")
+        printd("float")
         p[0] = ast.Constant(p[1], 'float')
 
     def p_expr_string(self, p):
         """
         expr : STRING
         """
-        print("string")
+        printd("string")
         p[0] = ast.Constant(p[1], 'str')
 
     def p_expr_id(self, p):
@@ -290,9 +296,9 @@ class PythonParser:
 
     def p_error(self, p):
         if p:
-            print("Syntax error at token", repr(p.value), p)
+            printd("Syntax error at token", repr(p.value), p)
         else:
-            print("None type:", p)
+            printd("None type:", p)
 
     def build(self, **kwargs):
         self.tokens = tokens
@@ -309,9 +315,9 @@ class PythonParser:
     def test(self, data):
         result = self.get_ast(data)
         try:
-            print(result)
-            print(ast.dump(result, indent=4))
-            print(ast.unparse(result))
+            printd(result)
+            printd(ast.dump(result, indent=4))
+            printd(ast.unparse(result))
         except Exception as e:
             print("Something went wrong lmao 😂")
             print(e)
