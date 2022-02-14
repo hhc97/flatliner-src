@@ -71,6 +71,7 @@ class PythonLexer:
         self.tokens = tokens
         self.at_line_start = True 
         self.paren_count = 0
+        self.indents = NO_INDENT
 
     def t_start_comment(self, t):
         r'\"\"\"'
@@ -190,7 +191,7 @@ class PythonLexer:
 
     def track_tokens_filter(self, lexer, tokens):
         at_line_start = self.at_line_start
-        indent = NO_INDENT
+        indent = self.indents
         for token in tokens:
             token.at_line_start = at_line_start
 
@@ -219,6 +220,7 @@ class PythonLexer:
 
             if (token.type != 'WS' or (token.at_line_start == True)):
                 self.at_line_start = at_line_start
+                self.indents = indent
                 yield token
 
     def process_indentation(self, tokens):
@@ -276,7 +278,7 @@ class PythonLexer:
                 yield self.dedent(token.lineno, token.lexpos)
 
     def process(self, lexer):
-        yield self.make_token('PROGRAM', 0, 0)
+        #yield self.make_token('PROGRAM', 0, 0)
         tokens = iter(lexer.token, None)
         tokens = self.track_tokens_filter(lexer, tokens)
         for token in self.process_indentation(tokens):
