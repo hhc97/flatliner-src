@@ -60,7 +60,7 @@ class PythonParser:
 
     def p_if_statement(self, p):
         """
-        if_stmt : IF expr COLON NEWLINE stmt_lst
+        if_stmt : IF expr COLON NEWLINE INDENT stmt_lst DEDENT
         """
         print("if statement")
         p[0] = ast.If(p[2], [p[5]], [ast.Pass()])
@@ -202,6 +202,7 @@ class PythonParser:
             print(ast.unparse(result))
         except:
             print("Something went wrong")
+            raise
         visitor = ast.NodeVisitor()
         visitor.visit(result)
 

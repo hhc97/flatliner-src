@@ -273,14 +273,16 @@ class PythonLexer:
                 yield self.dedent(token.lineno, token.lexpos)
 
     def process(self, lexer):
-        yield self.make_token('PROGRAM', 0, 0)
+        # yield self.make_token('PROGRAM', 0, 0)
         tokens = iter(lexer.token, None)
         tokens = self.track_tokens_filter(lexer, tokens)
         for token in self.process_indentation(tokens):
             yield token
 
     def get_token_external(self):
-        return next(self.process(self.lexer))
+        if not hasattr(self, 'token_generator'):
+            self.token_generator = self.process(self.lexer)
+        return next(self.token_generator, None)
 
     def test(self, data):
         self.lexer.input(data)
