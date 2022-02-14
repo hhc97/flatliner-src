@@ -67,6 +67,11 @@ class PythonLexer:
         ("COMMENT", "exclusive"),
     )
 
+    def __init__(self):
+        self.tokens = tokens
+        self.at_line_start = True 
+        self.paren_count = 0
+
     def t_start_comment(self, t):
         r'\"\"\"'
         t.lexer.push_state("COMMENT")
@@ -135,9 +140,9 @@ class PythonLexer:
         self.paren_count -= 1
         return t
 
-    def t_WS(self, t):
+    def t_WS(self,t):
         r' [ ]+ '
-        if self.lexer.at_line_start and self.paren_count == 0:
+        if self.at_line_start and self.paren_count == 0:
             return t
 
     def t_FLOAT(self, t):
@@ -168,7 +173,6 @@ class PythonLexer:
         self.tokens = tokens
         self.paren_count = 0
         self.lexer = lex.lex(module=self, **kwargs)
-        self.lexer.at_line_start = False
 
     def make_token(self, type, lineno, lexpos):
         tok = lex.LexToken()
@@ -185,8 +189,7 @@ class PythonLexer:
         return self.make_token('INDENT', lineno, lexpos)
 
     def track_tokens_filter(self, lexer, tokens):
-        lexer.at_line_start = True
-        at_line_start = True
+        at_line_start = self.at_line_start
         indent = NO_INDENT
         for token in tokens:
             token.at_line_start = at_line_start
@@ -203,8 +206,6 @@ class PythonLexer:
                 token.must_indent = False
 
             elif token.type == "WS":
-                assert token.at_line_start == True
-                at_line_start = True
                 token.must_indent = False
 
             else:
@@ -216,8 +217,9 @@ class PythonLexer:
                 at_line_start = False
                 indent = NO_INDENT
 
-            yield token
-            lexer.at_line_start = at_line_start
+            if (token.type != 'WS' or (token.at_line_start == True)):
+                self.at_line_start = at_line_start
+                yield token
 
     def process_indentation(self, tokens):
         levels = [0]
@@ -225,6 +227,7 @@ class PythonLexer:
         depth = 0
         prev_was_ws = False
         for token in tokens:
+            print(token, depth, token.must_indent)
             if token.type == "WS":
                 assert depth == 0
                 depth = len(token.value)
@@ -280,7 +283,10 @@ class PythonLexer:
             yield token
 
     def get_token_external(self):
-        return next(self.process(self.lexer))
+        try: 
+            return next(self.process(self.lexer))
+        except StopIteration:
+            return None
 
     def test(self, data):
         self.lexer.input(data)
