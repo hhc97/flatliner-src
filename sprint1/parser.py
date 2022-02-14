@@ -54,9 +54,26 @@ class PythonParser:
         """
         stmt : assign_stmt
              | if_stmt
+             | while_stmt
+             | for_stmt
         """
         print("statement")
         p[0] = p[1]
+    
+    def p_for_stmt(self, p):
+        """
+        for_stmt : FOR ID IN expr COLON NEWLINE INDENT stmt_lst DEDENT
+        """
+        print("For")
+        p[2] = ast.Name(p[2], ast.Store())
+        p[0] = ast.For(p[2], p[4], p[8], [], lineno=p.lineno)
+
+    def p_while_stmt(self, p):
+        """
+        while_stmt : WHILE expr COLON NEWLINE INDENT stmt_lst DEDENT
+        """
+        p[0] = ast.While(p[2], [p[6]], [])
+
 
     def p_if_statement(self, p):
         """
