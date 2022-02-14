@@ -38,7 +38,7 @@ class PythonParser:
         """
         print("statements or empty")
         p[0] = p[1]
-    
+
     def p_statement_list(self, p):
         """
         stmt_lst : stmt_lst stmt
@@ -207,11 +207,11 @@ class PythonParser:
 
 
 if __name__ == "__main__":
-    #argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')
-    #argparser.add_argument('FILE', help='Input file with python source code')
-    #args = argparser.parse_args()
+    argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')
+    argparser.add_argument('FILE', help='Input file with python source code')
+    args = argparser.parse_args()
 
-    f = open('test_input.py', 'r')
+    f = open(args.FILE, 'r')
     data = f.read()
     f.close()
 
