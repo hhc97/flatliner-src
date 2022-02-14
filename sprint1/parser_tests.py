@@ -24,6 +24,11 @@ def compare_parser(test_input_filepath: str) -> None:
         ast_rep = parser.get_ast(file_contents)
         dump = ast.unparse(ast_rep)
 
+        with open(f'./out/{test_input_filepath.split("/")[-1]}.ast.txt', 'w') as outfile:
+            outfile.write(file_contents)
+            outfile.write('\n----------------AST representation below-----------------\n')
+            outfile.write(ast.dump(ast_rep, indent=4))
+
         true_value = ast.unparse(ast.parse(file_contents))
 
         # if dump != true_value:
