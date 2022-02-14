@@ -90,7 +90,6 @@ class PythonParser:
     def p_func_defn(self, p):
         """
         func_defn : DEF ID params COLON NEWLINE INDENT stmt_lst DEDENT
-                  | 
         """
         # p[2] = ast.Name(p[2], ast.Store())
         p[0] = ast.FunctionDef(p[2], p[3], p[7], decorator_list=[], lineno=p.lineno)
@@ -179,7 +178,7 @@ class PythonParser:
     def p_paramlst(self, p):
         """
         paramlst : paramlst COMMA ID
-              | ID
+                 | ID
         """
         printd("param list")
         if len(p) == 2:
