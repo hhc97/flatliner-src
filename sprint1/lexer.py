@@ -279,6 +279,9 @@ class PythonLexer:
         for token in self.process_indentation(tokens):
             yield token
 
+    def get_token_external(self):
+        return next(self.process(self.lexer))
+
     def test(self, data):
         self.lexer.input(data)
         self.token_generator = self.process(self.lexer)

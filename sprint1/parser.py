@@ -194,7 +194,7 @@ class PythonParser:
         self.parser = yacc.yacc(module=self, **kwargs)
 
     def test(self, data):
-        result = self.parser.parse(data)
+        result = self.parser.parse(data, tokenfunc=self.lexer.get_token_external)
         result = ast.Module(result, [])
         try:
             print(result)
