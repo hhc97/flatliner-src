@@ -59,7 +59,7 @@ class PythonParser:
         """
         print("statement")
         p[0] = p[1]
-    
+
     def p_for_stmt(self, p):
         """
         for_stmt : FOR ID IN expr COLON NEWLINE INDENT stmt_lst DEDENT
@@ -73,7 +73,6 @@ class PythonParser:
         while_stmt : WHILE expr COLON NEWLINE INDENT stmt_lst DEDENT
         """
         p[0] = ast.While(p[2], [p[6]], [])
-
 
     def p_if_statement(self, p):
         """
@@ -105,7 +104,6 @@ class PythonParser:
         """
         print("or else")
         p[0] = p[5]
-        
 
     def p_assignment_statement(self, p):
         """
@@ -236,7 +234,7 @@ class PythonParser:
         self.parser = yacc.yacc(module=self, **kwargs)
 
     def test(self, data):
-        result = self.parser.parse(data, tokenfunc=self.lexer.get_token_external) # debug = True)
+        result = self.parser.parse(data, tokenfunc=self.lexer.get_token_external)  # debug = True)
         result = ast.Module(result, [])
         try:
             print(result)
