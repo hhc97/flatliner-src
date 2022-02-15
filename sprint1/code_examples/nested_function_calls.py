@@ -1,10 +1,8 @@
 def test1(a, b):
-    """A function"""
     return a + b
 
 
 def test2(c, d):
-    """Another function"""
     return c + d
 
 
