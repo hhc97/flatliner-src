@@ -83,6 +83,7 @@ class PythonParser:
              | for_stmt
              | func_defn
              | return
+             | expr_stmt
         """
         printd("statement")
         p[0] = p[1]
@@ -153,6 +154,12 @@ class PythonParser:
         printd("assign")
         p[0] = ast.Assign([ast.Name(p[1], ast.Store())], p[3], lineno=p.lineno)
 
+    def p_expr_statement(self, p):
+        """
+        expr_stmt : expr NEWLINE
+        """
+        p[0] = ast.Expr(p[1])
+    
     ################################
     ## Expressions
     ################################
