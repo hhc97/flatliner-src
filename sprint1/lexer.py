@@ -132,17 +132,15 @@ class PythonLexer:
 
     def t_LPAREN(self, t):
         r'\('
-        self.paren_count += 1
         return t
 
     def t_RPAREN(self, t):
         r'\)'
-        self.paren_count -= 1
         return t
 
     def t_WS(self, t):
         r' [ ]+ '
-        if self.lexer.at_line_start and self.paren_count == 0:
+        if self.lexer.at_line_start:
             return t
 
     def t_FLOAT(self, t):
@@ -160,8 +158,7 @@ class PythonLexer:
         r'\n+'
         t.lexer.lineno += len(t.value)
         t.type = "NEWLINE"
-        if self.paren_count == 0:
-            return t
+        return t
 
     # Error handling rule. DO NOT MODIFY
     def t_error(self, t):
@@ -171,7 +168,6 @@ class PythonLexer:
     # Lexer functions
     def build(self, **kwargs):
         self.tokens = tokens
-        self.paren_count = 0
         self.lexer = lex.lex(module=self, **kwargs)
         self.lexer.at_line_start = False
 
@@ -198,17 +194,14 @@ class PythonLexer:
 
             if token.type == "COLON":
                 at_line_start = False
-                indent = MAY_INDENT
+                indent = MUST_INDENT
                 token.must_indent = False
 
             elif token.type == "NEWLINE":
                 at_line_start = True
-                if indent == MAY_INDENT:
-                    indent = MUST_INDENT
                 token.must_indent = False
 
             elif token.type == "WS":
-                assert token.at_line_start == True
                 at_line_start = True
                 token.must_indent = False
 
