@@ -73,3 +73,18 @@ def return_in_loops(a, b):
         while 2:
             return b
     return 9
+
+
+a = return_in_loops(1, 2)
+b = print()
+print()
+
+
+def test_func_calls_in_func():
+    if True:
+        print(x)
+    else:
+        other_func(thing, 1 + 1)
+
+
+print(a + b, other(), one, return_in_loops(5 + 6, 2))
