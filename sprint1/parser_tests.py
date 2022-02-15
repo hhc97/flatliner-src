@@ -2,6 +2,7 @@
 Test suite for the python compiler.
 """
 import ast
+import os
 import re
 
 from python_parser import PythonParser
@@ -36,7 +37,7 @@ def compare_parser(test_input_filepath: str) -> None:
         #     print(true_value)
         #     print('Output:')
         #     print(dump)
-        assert clean_contents(dump) == clean_contents(true_value), 'parsing error, contents not parsed properly'
+        assert clean_contents(dump) == clean_contents(true_value), f'parsing error in {test_input_filepath}'
 
 
 def test_assignments():
@@ -53,6 +54,13 @@ def test_ifs():
 
 def test_comprehensive():
     compare_parser('test_inputs/comprehensive.py')
+
+
+def test_real_files():
+    base = './code_examples'
+    for file in os.listdir(base):
+        if not file.endswith('advanced_types.py'):
+            compare_parser(base + '/' + file)
 
 
 def run_tests() -> None:
