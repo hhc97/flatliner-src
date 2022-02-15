@@ -3,7 +3,6 @@ import argparse
 from ply import lex
 
 NO_INDENT = 0
-MAY_INDENT = 1
 MUST_INDENT = 2
 
 # Reserved words
@@ -206,7 +205,6 @@ class PythonLexer:
                 token.must_indent = False
 
             else:
-                # A real token; only indent after COLON NEWLINE
                 if indent == MUST_INDENT:
                     token.must_indent = True
                 else:
@@ -233,9 +231,7 @@ class PythonLexer:
             if token.type == "NEWLINE":
                 depth = 0
                 if prev_was_ws or token.at_line_start:
-                    # ignore blank lines
                     continue
-                # pass the other cases on through
                 yield token
                 continue
             prev_was_ws = False
@@ -271,7 +267,6 @@ class PythonLexer:
                 yield self.dedent(token.lineno, token.lexpos)
 
     def process(self, lexer):
-        # yield self.make_token('PROGRAM', 0, 0)
         tokens = iter(lexer.token, None)
         tokens = self.track_tokens_filter(lexer, tokens)
         for token in self.process_indentation(tokens):
@@ -285,14 +280,8 @@ class PythonLexer:
     def test(self, data):
         self.lexer.input(data)
         self.token_generator = self.process(self.lexer)
-        while True:
-            try:
-                tok = next(self.token_generator)
-            except StopIteration:
-                break
-            print(tok)
-            if not tok:
-                break
+        for token in self.token_generator:
+            print(token)
 
 
 # Main function. DO NOT MODIFY
