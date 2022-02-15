@@ -1,22 +1,26 @@
 Name: Haocheng Hu
 Student Number: 1005290855
 Group Members: Haocheng Hu, Naaz Sibia, Ritvik Bhardwaj
-Sprint: X
+Sprint: 1
 
 Contributions:
- Haocheng Hu (x%)
-    - 
-    - 
-    - 
+ Haocheng Hu (33%)
+    - made test suite for the parser and lexer along with coming up with examples
+    - split parser work with Naaz
+    - Miscellaneous bug fixes here and there
+    - [Misc] provided zoom meeting links to everyone free of charge
 
 
- Naaz Sibia (x%)
-    - 
-    - 
-    - 
+ Naaz Sibia (33%)
+    - worked on parser with me, mostly through co-working
+    - beautified submission files and pdf
+    - [misc] got us an extension
 
 
- Ritvik Bhardwaj (x%)
-    - 
-    - 
-    - 
+ Ritvik Bhardwaj (33%)
+    - made almost all of the lexer, did some big brain work with indents
+    - wrote documentation aspects regarding the internals of the lexer
+    - [misc] installed python 3.9 after a bit of a struggle
+
+ [External] Michael Liut (1%)
+    - provided us the extension
