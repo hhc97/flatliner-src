@@ -37,9 +37,11 @@ tokens = [
              'MINUS',
              'TIMES',
              'DIVIDE',
+             'DOT',
 
              'PE',  # +=
              'ME',  # -=
+             'MODULO',
 
              'GREATER',
              'LESSER',
@@ -110,6 +112,9 @@ class PythonLexer:
     t_DIVIDE = r'/'
     t_PE = r'\+\='
     t_ME = r'\-\='
+
+    t_DOT = r'\.'
+    t_MODULO = r'\%'
 
     # boolean algebra
     t_GREATER = r'>'
