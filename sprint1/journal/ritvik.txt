@@ -23,3 +23,8 @@ Contributions:
     - Worked on main logic and parser code with Haocheng
     - Cleaned up and vetting documentation and code
     - Went to lunch to get us an extension
+
+ Michael (1%)
+ - provided us extension 
+ - kept us company during valentines day
+ 
