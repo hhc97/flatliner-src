@@ -185,6 +185,9 @@ class PythonLexer:
         return self.make_token('INDENT', lineno, lexpos)
 
     def track_tokens_filter(self, lexer, tokens):
+        '''
+        Given a stream of tokens, determine if it should be indented based on previous tokens
+        '''
         lexer.at_line_start = True
         at_line_start = True
         indent = NO_INDENT
@@ -216,6 +219,9 @@ class PythonLexer:
             lexer.at_line_start = at_line_start
 
     def process_indentation(self, tokens):
+        '''
+        Given a stream of tokens, calculate the necessary INDENT and DEDENT tokens needed
+        '''
         levels = [0]
         token = None
         depth = 0
