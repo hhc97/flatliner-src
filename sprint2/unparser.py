@@ -75,7 +75,7 @@ class Unparser:
     def handle_error(self, node, inner) -> None:
         raise ValueError(f'Handler not found for {node}')
 
-    def unparse(self, root=None):
+    def unparse(self, root=None) -> str:
         """
         Unparses the ast.
         """
@@ -84,7 +84,8 @@ class Unparser:
             temp = None
             for node in curr.body[::-1]:
                 temp = self.apply_handler(node, temp)
-            print(temp)
+            return temp
+        return 'Unparse unsuccessful.'
 
 
 if __name__ == '__main__':
@@ -94,4 +95,5 @@ if __name__ == '__main__':
     test = Unparser()
     test.set_ast('test_input.py')
     print(ast.dump(test.ast, indent=4))
-    test.unparse()
+    result = test.unparse()
+    print(result)
