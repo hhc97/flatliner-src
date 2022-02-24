@@ -1,3 +1,6 @@
 .DS_store
 /.idea
 /venv
+playground.py
+parser.out
+parsetab.py
