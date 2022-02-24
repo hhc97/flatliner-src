@@ -36,6 +36,7 @@ class Unparser:
             ast.If: self.handle_if,
             list: self.unparse_list,
             ast.Compare: self.handle_compare,
+            ast.BoolOp: self.handle_boolop,
         }
 
     def set_ast(self, infile: str):
@@ -51,7 +52,7 @@ class Unparser:
         return self.node_handlers.get(type(node), self.handle_error)(node, inner)
 
     def handle_constant(self, node, inner) -> str:
-        return f"{node.value}"
+        return repr(node.value)
 
     def handle_name(self, node, inner) -> str:
         return node.id
@@ -74,6 +75,13 @@ class Unparser:
             ast.Div: '/',
         }
         return f'{self.apply_handler(node.left)} {op_map[type(node.op)]} {self.apply_handler(node.right)}'
+
+    def handle_boolop(self, node, inner) -> str:
+        op_map = {
+            ast.And: 'and',
+            ast.Or: 'or',
+        }
+        return f' {op_map[type(node.op)]} '.join(self.apply_handler(child) for child in node.values)
 
     def handle_if(self, node, inner) -> str:
         return f'{self.apply_handler(node.body)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse)}'
