@@ -33,6 +33,9 @@ class Unparser:
             ast.Call: self.handle_call,
             ast.Name: self.handle_name,
             ast.BinOp: self.handle_binop,
+            ast.If: self.handle_if,
+            list: self.unparse_list,
+            ast.Compare: self.handle_compare,
         }
 
     def set_ast(self, infile: str):
@@ -72,8 +75,29 @@ class Unparser:
         }
         return f'{self.apply_handler(node.left)} {op_map[type(node.op)]} {self.apply_handler(node.right)}'
 
+    def handle_if(self, node, inner) -> str:
+        return f'{self.apply_handler(node.body)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse)}'
+
+    def handle_compare(self, node, inner) -> str:
+        op_map = {
+            ast.Gt: '>',
+            ast.Lt: '<',
+            ast.GtE: '>=',
+            ast.LtE: '<=',
+            ast.Eq: '==',
+            ast.NotEq: '!=',
+            ast.In: 'in',
+        }
+        return f'{self.apply_handler(node.left)} {op_map[type(node.ops[0])]} {self.apply_handler(node.comparators[0])}'
+
     def handle_error(self, node, inner) -> None:
         raise ValueError(f'Handler not found for {node}')
+
+    def unparse_list(self, body: list, inner=None) -> str:
+        temp = None
+        for node in body[::-1]:
+            temp = self.apply_handler(node, temp)
+        return temp
 
     def unparse(self, root=None) -> str:
         """
@@ -81,10 +105,7 @@ class Unparser:
         """
         curr = root if root else self.ast
         if hasattr(curr, 'body') and isinstance(curr.body, list):
-            temp = None
-            for node in curr.body[::-1]:
-                temp = self.apply_handler(node, temp)
-            return temp
+            return self.unparse_list(curr.body)
         return 'Unparse unsuccessful.'
 
 
