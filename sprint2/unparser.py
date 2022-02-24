@@ -37,6 +37,8 @@ class Unparser:
             list: self.unparse_list,
             ast.Compare: self.handle_compare,
             ast.BoolOp: self.handle_boolop,
+            ast.FunctionDef: self.handle_functiondef,
+            ast.Return: self.handle_return,
         }
 
     def set_ast(self, infile: str):
@@ -97,6 +99,13 @@ class Unparser:
             ast.In: 'in',
         }
         return f'{self.apply_handler(node.left)} {op_map[type(node.ops[0])]} {self.apply_handler(node.comparators[0])}'
+
+    def handle_functiondef(self, node, inner) -> str:
+        args = ', '.join(arg.arg for arg in node.args.args)
+        return construct_lambda({node.name: f'lambda {args}: {self.unparse_list(node.body)}'}, inner)
+
+    def handle_return(self, node, inner) -> str:
+        return self.apply_handler(node.value)
 
     def handle_error(self, node, inner) -> None:
         raise ValueError(f'Handler not found for {node}')
