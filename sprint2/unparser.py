@@ -64,10 +64,12 @@ class Unparser:
         return construct_lambda({var_name: self.apply_handler(node.value)}, cont)
 
     def handle_expr(self, node, cont) -> str:
-        return self.apply_handler(node.value)
+        return self.apply_handler(node.value, cont)
 
     def handle_call(self, node, cont) -> str:
-        return f'{self.apply_handler(node.func)}({", ".join(self.apply_handler(child) for child in node.args)})'
+        if not cont:
+            return f'{self.apply_handler(node.func)}({", ".join(self.apply_handler(child) for child in node.args)})'
+        return f'[{self.apply_handler(node.func)}({", ".join(self.apply_handler(child) for child in node.args)}), {cont}][-1]'
 
     def handle_binop(self, node, cont) -> str:
         op_map = {
