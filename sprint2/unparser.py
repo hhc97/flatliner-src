@@ -50,26 +50,26 @@ class Unparser:
             parser.build()
             self.ast = parser.get_ast(f.read())
 
-    def apply_handler(self, node, inner=None):
-        return self.node_handlers.get(type(node), self.handle_error)(node, inner)
+    def apply_handler(self, node, cont=None):
+        return self.node_handlers.get(type(node), self.handle_error)(node, cont)
 
-    def handle_constant(self, node, inner) -> str:
+    def handle_constant(self, node, cont) -> str:
         return repr(node.value)
 
-    def handle_name(self, node, inner) -> str:
+    def handle_name(self, node, cont) -> str:
         return node.id
 
-    def handle_assign(self, node, inner) -> str:
+    def handle_assign(self, node, cont) -> str:
         var_name = node.targets[0].id
-        return construct_lambda({var_name: self.apply_handler(node.value)}, inner)
+        return construct_lambda({var_name: self.apply_handler(node.value)}, cont)
 
-    def handle_expr(self, node, inner) -> str:
+    def handle_expr(self, node, cont) -> str:
         return self.apply_handler(node.value)
 
-    def handle_call(self, node, inner) -> str:
+    def handle_call(self, node, cont) -> str:
         return f'{self.apply_handler(node.func)}({", ".join(self.apply_handler(child) for child in node.args)})'
 
-    def handle_binop(self, node, inner) -> str:
+    def handle_binop(self, node, cont) -> str:
         op_map = {
             ast.Add: '+',
             ast.Sub: '-',
@@ -78,17 +78,18 @@ class Unparser:
         }
         return f'{self.apply_handler(node.left)} {op_map[type(node.op)]} {self.apply_handler(node.right)}'
 
-    def handle_boolop(self, node, inner) -> str:
+    def handle_boolop(self, node, cont) -> str:
         op_map = {
             ast.And: 'and',
             ast.Or: 'or',
         }
         return f' {op_map[type(node.op)]} '.join(self.apply_handler(child) for child in node.values)
 
-    def handle_if(self, node, inner) -> str:
+    def handle_if(self, node, cont) -> str:
+        print(cont)
         return f'{self.apply_handler(node.body)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse)}'
 
-    def handle_compare(self, node, inner) -> str:
+    def handle_compare(self, node, cont) -> str:
         op_map = {
             ast.Gt: '>',
             ast.Lt: '<',
@@ -100,17 +101,17 @@ class Unparser:
         }
         return f'{self.apply_handler(node.left)} {op_map[type(node.ops[0])]} {self.apply_handler(node.comparators[0])}'
 
-    def handle_functiondef(self, node, inner) -> str:
+    def handle_functiondef(self, node, cont) -> str:
         args = ', '.join(arg.arg for arg in node.args.args)
-        return construct_lambda({node.name: f'lambda {args}: {self.unparse_list(node.body)}'}, inner)
+        return construct_lambda({node.name: f'lambda {args}: {self.unparse_list(node.body)}'}, cont)
 
-    def handle_return(self, node, inner) -> str:
+    def handle_return(self, node, cont) -> str:
         return self.apply_handler(node.value)
 
-    def handle_error(self, node, inner) -> None:
+    def handle_error(self, node, cont) -> None:
         raise ValueError(f'Handler not found for {node}')
 
-    def unparse_list(self, body: list, inner=None) -> str:
+    def unparse_list(self, body: list, cont=None) -> str:
         temp = None
         for node in body[::-1]:
             temp = self.apply_handler(node, temp)
