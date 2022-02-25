@@ -86,8 +86,7 @@ class Unparser:
         return f' {op_map[type(node.op)]} '.join(self.apply_handler(child) for child in node.values)
 
     def handle_if(self, node, cont) -> str:
-        print(cont)
-        return f'{self.apply_handler(node.body)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse)}'
+        return f'{self.apply_handler(node.body, cont)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse, cont)}'
 
     def handle_compare(self, node, cont) -> str:
         op_map = {
@@ -112,7 +111,7 @@ class Unparser:
         raise ValueError(f'Handler not found for {node}')
 
     def unparse_list(self, body: list, cont=None) -> str:
-        temp = None
+        temp = cont
         for node in body[::-1]:
             temp = self.apply_handler(node, temp)
         return temp
