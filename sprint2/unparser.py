@@ -14,6 +14,13 @@ def construct_lambda(vals: dict[str, str], body: str = '{}') -> str:
     return f'(lambda {", ".join(vals.keys())}: {body})({", ".join(vals.values())})'
 
 
+def provide_imports(imports: list[str], body: str) -> str:
+    """
+    Provides imports to our one lined program.
+    """
+    return construct_lambda({k: f"__import__('{k}')" for k in imports}, body)
+
+
 def wrap_globals(body: str):
     """
     Wraps a lambda body with the globals dict.
@@ -26,6 +33,7 @@ def wrap_globals(body: str):
 class Unparser:
     def __init__(self):
         self.ast = None
+        self.imports = []
         self.node_handlers = {
             ast.Assign: self.handle_assign,
             ast.Constant: self.handle_constant,
@@ -40,6 +48,7 @@ class Unparser:
             ast.BoolOp: self.handle_boolop,
             ast.FunctionDef: self.handle_functiondef,
             ast.Return: self.handle_return,
+            ast.Import: self.handle_import,
         }
 
     def set_ast(self, infile: str, read_from_file: bool = False):
@@ -116,6 +125,10 @@ class Unparser:
     def handle_return(self, node, cont) -> str:
         return self.apply_handler(node.value)
 
+    def handle_import(self, node, cont) -> str:
+        self.imports.extend(a.name for a in node.names)
+        return cont
+
     def handle_error(self, node, cont) -> None:
         raise ValueError(f'Handler not found for {node}')
 
@@ -129,9 +142,11 @@ class Unparser:
         """
         Unparses the ast.
         """
+        self.imports.clear()
         curr = root if root else self.ast
         if hasattr(curr, 'body') and isinstance(curr.body, list):
-            return self.unparse_list(curr.body)
+            body = self.unparse_list(curr.body)
+            return provide_imports(self.imports, body)
         return 'Unparse unsuccessful.'
 
 
