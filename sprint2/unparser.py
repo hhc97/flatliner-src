@@ -32,6 +32,7 @@ class Unparser:
             ast.Expr: self.handle_expr,
             ast.Call: self.handle_call,
             ast.Name: self.handle_name,
+            ast.Attribute: self.handle_attribute,
             ast.BinOp: self.handle_binop,
             ast.If: self.handle_if,
             list: self.unparse_list,
@@ -61,6 +62,9 @@ class Unparser:
 
     def handle_name(self, node, cont) -> str:
         return node.id
+
+    def handle_attribute(self, node, cont) -> str:
+        return f'{self.apply_handler(node.value)}.{node.attr}'
 
     def handle_assign(self, node, cont) -> str:
         var_name = node.targets[0].id
