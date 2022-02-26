@@ -6,4 +6,4 @@ run:
 	python3 python_parser.py test_input.py
 
 test:
-	python3 parser_tests.py
+	python3 test_compiler.py
