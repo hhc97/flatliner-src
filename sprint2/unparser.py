@@ -138,7 +138,7 @@ class Unparser:
 
     def handle_functiondef(self, node, cont) -> str:
         args = ', '.join(arg.arg for arg in node.args.args)
-        return construct_lambda({node.name: f'lambda {args}: {self.unparse_list(node.body)}'}, cont)
+        return construct_lambda({node.name: f'lambda{" " if args else ""}{args}: {self.unparse_list(node.body)}'}, cont)
 
     def handle_return(self, node, cont) -> str:
         return self.apply_handler(node.value)
