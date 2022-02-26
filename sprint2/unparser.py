@@ -18,7 +18,7 @@ def provide_imports(imports: list[str], body: str) -> str:
     """
     Provides imports to our one lined program.
     """
-    return construct_lambda({k: f"__import__('{k}')" for k in imports}, body)
+    return construct_lambda({k: f"__import__('{k}')" for k in imports}, body) if imports else body
 
 
 def wrap_globals(body: str):
