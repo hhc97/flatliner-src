@@ -46,6 +46,7 @@ class Unparser:
             list: self.unparse_list,
             ast.Compare: self.handle_compare,
             ast.BoolOp: self.handle_boolop,
+            ast.UnaryOp: self.handle_unaryop,
             ast.FunctionDef: self.handle_functiondef,
             ast.Return: self.handle_return,
             ast.Import: self.handle_import,
@@ -102,6 +103,15 @@ class Unparser:
             ast.Or: 'or',
         }
         return f' {op_map[type(node.op)]} '.join(self.apply_handler(child) for child in node.values)
+
+    def handle_unaryop(self, node, cont) -> str:
+        op_map = {
+            ast.UAdd: '+',
+            ast.USub: '-',
+            ast.Not: 'not ',
+            ast.Invert: '~',
+        }
+        return f'{op_map[type(node.op)]}{self.apply_handler(node.operand)}'
 
     def handle_if(self, node, cont) -> str:
         return f'{self.apply_handler(node.body, cont)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse, cont)}'
