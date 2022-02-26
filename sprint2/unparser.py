@@ -41,14 +41,17 @@ class Unparser:
             ast.Return: self.handle_return,
         }
 
-    def set_ast(self, infile: str):
+    def set_ast(self, infile: str, read_from_file: bool = False):
         """
         Turns the infile into an AST and sets the instance attribute accordingly.
         """
-        with open(infile, 'r') as f:
-            parser = PythonParser()
-            parser.build()
-            self.ast = parser.get_ast(f.read())
+        parser = PythonParser()
+        parser.build()
+        if read_from_file:
+            with open(infile, 'r') as f:
+                self.ast = parser.get_ast(f.read())
+        else:
+            self.ast = parser.get_ast(infile)
 
     def apply_handler(self, node, cont=None):
         return self.node_handlers.get(type(node), self.handle_error)(node, cont)
@@ -133,7 +136,7 @@ if __name__ == '__main__':
 
     doctest.testmod()
     test = Unparser()
-    test.set_ast('test_input.py')
+    test.set_ast('test_input.py', True)
     print(ast.dump(test.ast, indent=4))
     result = test.unparse()
     print(result)
