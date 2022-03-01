@@ -193,6 +193,13 @@ class PythonParser:
             printd("p1", p[1])
             p[0] = p[1] + [ast.arg(p[3])]
 
+    def p_parenexpr(self, p):
+        """
+        expr : LPAREN expr RPAREN
+        """
+        p[0] = p[2]
+
+
     def p_func_call(self, p):
         """
         expr : ID args
