@@ -74,11 +74,34 @@ class ASTVisitor(ast.NodeVisitor):
         """ visit a Module node and the visits recursively"""
         return node.value
     
+    def visit_If(self, node, new_var = False):
+        """ Visit an If node and the visits recursively"""
+        s = []
+        curNode = node
+        while type(curNode) == ast.If:
+            s.append(curNode)
+            if len(curNode.orelse) > 0:
+                curNode = curNode.orelse[0]
+            else:
+                curNode = None
+                break
+        count = 0
+        for ifStmt in s:
+            print(f'IFZ {self.visit(ifStmt.test)} GOTO _L{count}')
+            count += 1
+        newCount = 0
+        for ifStmt in s:
+            print(f'_L{newCount}:')
+            for body in ifStmt.body:
+                self.visit(body[0])
+            newCount += 1
+            print(f'GOTO _L{count + 1}')
     
     def visit_Module(self, node, new_var = False):
         """ visit a Module node and the visits recursively"""
         for child in ast.iter_child_nodes(node):
                  self.visit(child)
+                 # TODO: if it was an if statement, add an extending line 
 
     def visit(self, node, new_var = False):
         support_new_var = [ast.BinOp, ast.BoolOp]
