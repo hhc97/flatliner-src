@@ -28,6 +28,11 @@ class ASTVisitor(ast.NodeVisitor):
         print(s)
 
     
+    def visit_Name(self, node, new_var = False):
+        """ visit a Name node and visits it recursively"""
+        return node.id
+
+
     def visit_BinOp(self, node, new_var = False):
         """ visit a BinOp node and visits it recursively"""
         op_map = {
@@ -60,7 +65,9 @@ class ASTVisitor(ast.NodeVisitor):
     
     def visit_FunctionDef(self, node, new_var = False):
         """ visit a Function node and visits it recursively"""
-        print(type(node).__name__)
+        print(f'_{node.name}:')
+        for stmt in node.body:
+            self.visit(stmt)
 
     
     def visit_Constant(self, node, new_var = False):
