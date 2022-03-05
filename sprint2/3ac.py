@@ -25,6 +25,8 @@ class ASTVisitor(ast.NodeVisitor):
         self.tac = {"main": []}
         self.key = "main"
         self.L = 0
+        self.exitL = None
+        self.previousL = [] # anytime we go into a scope, add to this and 
 
 
     def addToTac(self,value):
@@ -153,9 +155,18 @@ class ASTVisitor(ast.NodeVisitor):
         for ifStmt, L in s:
             tempVar = self.visit(ifStmt.test)
             self.addToTac(('IF',tempVar,None,f'_L{L}'))
+
+        exitL = self.exitL
+        isOuter = False
+        if exitL == None:
+            isOuter = True
+            exitL = self.getL()
+            self.exitL = exitL
+
         if curNode != None:
             self.visit(curNode[0])
-            self.addToTac(('GOTO',None,None,f'_L{self.L}'))
+            self.addToTac(('GOTO',None,None,f'_L{exitL}'))
+
         keys = []
         for ifStmt, L in s:
             self.key = f'_L{L}'
@@ -166,14 +177,18 @@ class ASTVisitor(ast.NodeVisitor):
             self.key = f'_L{L}'
             keys.append(f'_L{L}')
         for key in keys:
-            self.tac[key].append(('GOTO',None,None,f'_L{self.L}'))
+            self.tac[key].append(('GOTO',None,None,f'_L{exitL}'))
+        
+        if isOuter:
+            self.exitL = None
+        return exitL
     
     def visit_Module(self, node, new_var = False):
         """ visit a Module node and the visits recursively"""
         for child in ast.iter_child_nodes(node):
-                 self.visit(child)
-                 if type(child) in [ast.If]:
-                    self.key = f'_L{self.getL()}'
+                exitL = self.visit(child)
+                if type(child) in [ast.If]:
+                    self.key = f'_L{exitL}'
 
     def visit(self, node, new_var = False):
         support_new_var = [ast.BinOp, ast.BoolOp]
