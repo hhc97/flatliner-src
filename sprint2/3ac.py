@@ -24,6 +24,7 @@ class ASTVisitor(ast.NodeVisitor):
         super().__init__()
         self.tac = {"main": []}
         self.key = "main"
+        self.L = 0
 
 
     def addToTac(self,value):
@@ -31,6 +32,10 @@ class ASTVisitor(ast.NodeVisitor):
             self.tac[self.key].append(value)
         else:
             self.tac[self.key] = [value]
+
+    def getL(self):
+        self.L += 1 
+        return self.L - 1
     
     def visit_Assign(self, node, new_var = False):
         """ visit a Assign node and visits it recursively"""
@@ -63,7 +68,54 @@ class ASTVisitor(ast.NodeVisitor):
         self.addToTac((operator, left, right, var))
         return var
 
-    # TODO: figure out
+    def visit_BoolOp(self, node):
+        s = []
+        op_map = {
+            ast.And: 'AND',
+            ast.Or: 'OR'
+        }
+        for curNode in node.values:
+            s.append(self.visit(curNode))
+        
+        operator = op_map[type(node.op)]
+        var = fresh_variable()
+        self.addToTac((operator,s[0],s[1],var))
+        return var
+        
+
+    def visit_Compare(self, node, new_var = False):
+        """ visit a Compare node and visits it recursively"""
+        op_map = {
+            ast.Gt: '>',
+            ast.Lt: '<',
+            ast.GtE: '>=',
+            ast.LtE: '<=',
+            ast.Eq: '==',
+            ast.NotEq: '!=',
+            ast.In: 'in',
+        }
+        left = self.visit(node.left, new_var = True) # make new var if required
+        curOpList = node.ops
+        curCompList = node.comparators
+        while len(curOpList) > 1:
+            curOp = curOpList[0]
+            operator = op_map[type(curOp)]
+
+            curComp = self.visit(curCompList[0])
+            curComp2 = self.visit(curCompList[1])
+            var = fresh_variable()
+            self.addToTac((operator, curComp, curComp2, var))
+            curOpList = curOpList[1:]
+            curCompList = [var] + curCompList[3:]
+
+            #temp variables
+        var = fresh_variable()
+        operator = op_map[type(curOpList[0])]
+        right = curCompList[0]
+        if (type(right) != str):
+            right = self.visit(right)
+        self.addToTac((operator, left, right, var))
+        return var
     
     def visit_Call(self, node, new_var = False):
         """ visit a Call node and visits it recursively"""
@@ -92,29 +144,24 @@ class ASTVisitor(ast.NodeVisitor):
         s = []
         curNode = node
         while type(curNode) == ast.If:
-            s.append(curNode)
+            s.append((curNode, self.getL()))
             if len(curNode.orelse) > 0:
                 curNode = curNode.orelse[0]
             else:
                 curNode = None
                 break
-        count = 0
-        for ifStmt in s:
-            print(f'IFZ {self.visit(ifStmt.test)} GOTO _L{count}')
-            count += 1
-        newCount = 0
-        for ifStmt in s:
-            print(f'_L{newCount}:')
+        for ifStmt, L in s:
+            print(f'IFZ {self.visit(ifStmt.test)} GOTO _L{L}')
+        for ifStmt, L in s:
+            print(f'_L{L}:')
             for body in ifStmt.body:
                 self.visit(body[0])
-            newCount += 1
-            print(f'GOTO _L{count + 1}')
+            print(f'GOTO _L{self.L + 1}')
     
     def visit_Module(self, node, new_var = False):
         """ visit a Module node and the visits recursively"""
         for child in ast.iter_child_nodes(node):
                  self.visit(child)
-                 # TODO: if it was an if statement, add an extending line 
 
     def visit(self, node, new_var = False):
         support_new_var = [ast.BinOp, ast.BoolOp]
