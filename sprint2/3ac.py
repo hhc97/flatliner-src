@@ -1,13 +1,6 @@
 import ast
 from python_parser import PythonParser
 
-VAR_COUNT = 0
-
-def fresh_variable():
-    global VAR_COUNT
-    var = f't_{VAR_COUNT}'
-    VAR_COUNT += 1
-    return var
 
 class ASTVisitor(ast.NodeVisitor):
     """ example recursive visitor """
@@ -27,7 +20,12 @@ class ASTVisitor(ast.NodeVisitor):
         self.L = 0
         self.exitL = None
         self.previousL = [] # anytime we go into a scope, add to this and 
+        self.var_count = 0
 
+    def fresh_variable(self):
+        var = f't_{self.var_count}'
+        self.var_count += 1
+        return var
 
     def addToTac(self,value):
         if self.key in self.tac:
@@ -66,7 +64,7 @@ class ASTVisitor(ast.NodeVisitor):
         left = self.visit(node.left, new_var = True) # make new var if required
         right = self.visit(node.right, new_var = True)# make new var if required
         operator = op_map[type(node.op)]
-        var = fresh_variable()
+        var = self.fresh_variable()
         self.addToTac((operator, left, right, var))
         return var
 
@@ -80,7 +78,7 @@ class ASTVisitor(ast.NodeVisitor):
             s.append(self.visit(curNode))
         
         operator = op_map[type(node.op)]
-        var = fresh_variable()
+        var = self.fresh_variable()
         self.addToTac((operator,s[0],s[1],var))
         return var
         
@@ -105,13 +103,13 @@ class ASTVisitor(ast.NodeVisitor):
 
             curComp = self.visit(curCompList[0])
             curComp2 = self.visit(curCompList[1])
-            var = fresh_variable()
+            var = self.fresh_variable()
             self.addToTac((operator, curComp, curComp2, var))
             curOpList = curOpList[1:]
             curCompList = [var] + curCompList[3:]
 
             #temp variables
-        var = fresh_variable()
+        var = self.fresh_variable()
         operator = op_map[type(curOpList[0])]
         right = curCompList[0]
         if (type(right) != str):
@@ -202,10 +200,11 @@ class ASTVisitor(ast.NodeVisitor):
         print('here')
         pass
 
-visitor = ASTVisitor()
-infile = open('test_input.py')
-parser = PythonParser()
-parser.build()
-tree = parser.get_ast(infile.read())
-visitor.visit(tree)
-print(visitor.tac)
+if __name__ == '__main__':    
+    visitor = ASTVisitor()
+    infile = open('test_input.py')
+    parser = PythonParser()
+    parser.build()
+    tree = parser.get_ast(infile.read())
+    visitor.visit(tree)
+    print(visitor.tac)
