@@ -156,11 +156,17 @@ class ASTVisitor(ast.NodeVisitor):
         if curNode != None:
             self.visit(curNode[0])
             self.addToTac(('GOTO',None,None,f'_L{self.L}'))
+        keys = []
         for ifStmt, L in s:
             self.key = f'_L{L}'
             for body in ifStmt.body:
-                self.visit(body[0])
-            self.addToTac(('GOTO',None,None,f'_L{self.L}'))
+                for element in body:
+                    self.key = f'_L{L}'
+                    self.visit(element)
+            self.key = f'_L{L}'
+            keys.append(f'_L{L}')
+        for key in keys:
+            self.tac[key].append(('GOTO',None,None,f'_L{self.L}'))
     
     def visit_Module(self, node, new_var = False):
         """ visit a Module node and the visits recursively"""
