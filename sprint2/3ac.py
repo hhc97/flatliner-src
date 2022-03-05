@@ -151,17 +151,23 @@ class ASTVisitor(ast.NodeVisitor):
                 curNode = None
                 break
         for ifStmt, L in s:
-            print(f'IFZ {self.visit(ifStmt.test)} GOTO _L{L}')
+            tempVar = self.visit(ifStmt.test)
+            self.addToTac(('IF',tempVar,None,f'_L{L}'))
+        if curNode != None:
+            self.visit(curNode[0])
+            self.addToTac(('GOTO',None,None,f'_L{self.L}'))
         for ifStmt, L in s:
-            print(f'_L{L}:')
+            self.key = f'_L{L}'
             for body in ifStmt.body:
                 self.visit(body[0])
-            print(f'GOTO _L{self.L + 1}')
+            self.addToTac(('GOTO',None,None,f'_L{self.L}'))
     
     def visit_Module(self, node, new_var = False):
         """ visit a Module node and the visits recursively"""
         for child in ast.iter_child_nodes(node):
                  self.visit(child)
+                 if type(child) in [ast.If]:
+                    self.key = f'_L{self.getL()}'
 
     def visit(self, node, new_var = False):
         support_new_var = [ast.BinOp, ast.BoolOp]
