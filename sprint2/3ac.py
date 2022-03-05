@@ -20,12 +20,27 @@ class ASTVisitor(ast.NodeVisitor):
     #             self.visit(child)
     #     return wrapper
 
+    def __init__(self):
+        super().__init__()
+        self.tac = {"main": []}
+        self.key = "main"
+
+
+    def addToTac(self,value):
+        if self.key in self.tac:
+            self.tac[self.key].append(value)
+        else:
+            self.tac[self.key] = [value]
     
     def visit_Assign(self, node, new_var = False):
         """ visit a Assign node and visits it recursively"""
+        visitedNode = self.visit(node.value)
         s = f'{node.targets[0].id} = ' # assuming there's one target, I'm not supporting more
-        s += f'{self.visit(node.value)}'
-        print(s)
+        s += f'{visitedNode}'
+
+        self.addToTac(('=',visitedNode,None,node.targets[0].id))
+        
+        
 
     
     def visit_Name(self, node, new_var = False):
@@ -43,13 +58,10 @@ class ASTVisitor(ast.NodeVisitor):
         }
         left = self.visit(node.left, new_var = True) # make new var if required
         right = self.visit(node.right, new_var = True)# make new var if required
-        s = f'{left} {op_map[type(node.op)]} {right}'
-        if new_var:
-            var = fresh_variable()
-            s = f'{var} = ' + s
-            print(s)
-            return var
-        return s
+        operator = op_map[type(node.op)]
+        var = fresh_variable()
+        self.addToTac((operator, left, right, var))
+        return var
 
     # TODO: figure out
     
@@ -65,9 +77,10 @@ class ASTVisitor(ast.NodeVisitor):
     
     def visit_FunctionDef(self, node, new_var = False):
         """ visit a Function node and visits it recursively"""
-        print(f'_{node.name}:')
+        self.key = node.name
         for stmt in node.body:
             self.visit(stmt)
+        self.key = 'main'
 
     
     def visit_Constant(self, node, new_var = False):
@@ -121,3 +134,4 @@ parser = PythonParser()
 parser.build()
 tree = parser.get_ast(infile.read())
 visitor.visit(tree)
+print(visitor.tac)
