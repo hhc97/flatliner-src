@@ -129,6 +129,7 @@ class ASTVisitor(ast.NodeVisitor):
     
     def visit_FunctionDef(self, node):
         """ visit a Function node and visits it recursively"""
+        self.addToTac(('DEFN',None,None,node.name))
         oldKey = self.key
         self.key = node.name
         for arg in node.args.args:
