@@ -136,7 +136,7 @@ class TACConverter:
         outer_code.append(ast.If(cond, body, else_block))     
         goto_block = self.tac[if_block][-1][3]
         # add goto code to outer code
-        outer_code.extend(self.convert(self.tac[goto_block], var_d))
+        outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
 
     
 if __name__ == '__main__':
