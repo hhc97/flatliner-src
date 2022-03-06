@@ -198,6 +198,10 @@ class ASTVisitor(ast.NodeVisitor):
         iterates = self.visit(node.iter)
         # TODO
 
+    def visit_Return(self, node):
+        tempVar = self.visit(node.value)
+        self.addToTac(("RETURN", None, None, tempVar))
+
     def visit_Call(self, node):
         for arg in node.args:
             tempVar = self.visit(arg)
