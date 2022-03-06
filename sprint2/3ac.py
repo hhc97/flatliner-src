@@ -130,6 +130,8 @@ class ASTVisitor(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         """ visit a Function node and visits it recursively"""
         self.key = node.name
+        for arg in node.args.args:
+            self.addToTac(("ADD-PARAM",None,None,arg.arg))
         for stmt in node.body:
             self.visit(stmt)
         self.key = 'main'
