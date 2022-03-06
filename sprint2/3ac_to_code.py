@@ -1,4 +1,5 @@
 import ast
+from fileinput import lineno
 from os import stat
 
 from numpy import var
@@ -33,6 +34,12 @@ class TACConverter:
                 # everything till GOTO is else
                 else_block = statements[index:]
                 self.if_handler(statement, var_d, else_block, code)
+                return code # it'll handle the rest of the main block too
+            if op == 'WHILE':
+                self.while_handler(statement, var_d.copy(), code)
+                return code # it'll handle the rest of the main block too
+            if op == 'FOR':
+                self.for_handler(statement, var_d.copy(), code)
                 return code # it'll handle the rest of the main block too
             if op == 'DEFN':
                 self.function_hander(statement, var_d.copy(), code)
@@ -169,6 +176,30 @@ class TACConverter:
         # add goto code to outer code
         outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
 
+    def while_handler(self, statement, var_d, outer_code):
+        print('WHILE')
+        cond = self.constant_handler(statement[1], var_d)
+        block = statement[3]
+        body = self.convert(self.tac[block], var_d.copy())
+
+        outer_code.append(ast.While(cond, body, []))     
+        goto_block = self.tac[block][-1][3]
+        # add goto code to outer code
+        outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
+    
+    def for_handler(self, statement, var_d, outer_code):
+        print('FOR')
+        var, iterator, block = statement[1:]
+        body = self.convert(self.tac[block], var_d.copy())
+        iterator = self.constant_handler(iterator, var_d)
+        var = ast.Name(var, ast.Store())
+        var_d[var] = var
+        outer_code.append(ast.For(var, iterator, body, [], lineno = self.lineno))     
+        goto_block = self.tac[block][-1][3]
+        # add goto code to outer code
+        outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
+    
+    
     def function_hander(self, statement, var_d, outer_code):
         print("FUNC")
         func_block = statement[3]
