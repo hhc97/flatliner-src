@@ -37,7 +37,7 @@ class ASTVisitor(ast.NodeVisitor):
         self.L += 1 
         return self.L - 1
     
-    def visit_Assign(self, node):
+    def visit_Assign(self, node, new_var = False):
         """ visit a Assign node and visits it recursively"""
         visitedNode = self.visit(node.value)
         s = f'{node.targets[0].id} = ' # assuming there's one target, I'm not supporting more
@@ -48,12 +48,12 @@ class ASTVisitor(ast.NodeVisitor):
         
 
     
-    def visit_Name(self, node):
+    def visit_Name(self, node, new_var = False):
         """ visit a Name node and visits it recursively"""
         return node.id
 
 
-    def visit_BinOp(self, node):
+    def visit_BinOp(self, node, new_var = False):
         """ visit a BinOp node and visits it recursively"""
         op_map = {
             ast.Add: '+',
@@ -61,8 +61,8 @@ class ASTVisitor(ast.NodeVisitor):
             ast.Mult: '*',
             ast.Div: '/',
         }
-        left = self.visit(node.left)
-        right = self.visit(node.right)
+        left = self.visit(node.left, new_var = True) # make new var if required
+        right = self.visit(node.right, new_var = True)# make new var if required
         operator = op_map[type(node.op)]
         var = self.fresh_variable()
         self.addToTac((operator, left, right, var))
@@ -83,7 +83,7 @@ class ASTVisitor(ast.NodeVisitor):
         return var
         
 
-    def visit_Compare(self, node):
+    def visit_Compare(self, node, new_var = False):
         """ visit a Compare node and visits it recursively"""
         op_map = {
             ast.Gt: '>',
@@ -94,7 +94,7 @@ class ASTVisitor(ast.NodeVisitor):
             ast.NotEq: '!=',
             ast.In: 'in',
         }
-        left = self.visit(node.left) # make new var if required
+        left = self.visit(node.left, new_var = True) # make new var if required
         curOpList = node.ops
         curCompList = node.comparators
         while len(curOpList) > 1:
@@ -117,17 +117,17 @@ class ASTVisitor(ast.NodeVisitor):
         self.addToTac((operator, left, right, var))
         return var
     
-    def visit_Call(self, node):
+    def visit_Call(self, node, new_var = False):
         """ visit a Call node and visits it recursively"""
         print(type(node).__name__)
 
     
-    def visit_Lambda(self, node):
+    def visit_Lambda(self, node, new_var = False):
         """ visit a Function node """
         print(type(node).__name__)
 
     
-    def visit_FunctionDef(self, node):
+    def visit_FunctionDef(self, node, new_var = False):
         """ visit a Function node and visits it recursively"""
         self.key = node.name
         for stmt in node.body:
@@ -135,72 +135,68 @@ class ASTVisitor(ast.NodeVisitor):
         self.key = 'main'
 
     
-    def visit_Constant(self, node):
+    def visit_Constant(self, node, new_var = False):
         """ visit a Module node and the visits recursively"""
         return node.value
     
-    def visit_If(self, node, end_segment = None):
+    def visit_If(self, node, new_var = False):
         """ Visit an If node and the visits recursively"""
-
-        # two paths to consider, if it satisfies or if it doesnt
-        curNode = node 
-        ifStatements = []
+        s = []
+        curNode = node
         while type(curNode) == ast.If:
-            ifStatements.append((curNode, self.getL()))
-            if len(curNode.orelse) >= 1:
+            s.append((curNode, self.getL()))
+            if len(curNode.orelse) > 0:
                 curNode = curNode.orelse[0]
             else:
                 curNode = None
                 break
+        for ifStmt, L in s:
+            tempVar = self.visit(ifStmt.test)
+            self.addToTac(('IF',tempVar,None,f'_L{L}'))
 
-        for ifstmt, L in ifStatements:
-            tempVar = self.visit(ifstmt.test)
-            self.addToTac(('IF', tempVar, None, f'_L{L}'))
-        
+        exitL = self.exitL
+        isOuter = False
+        if exitL == None:
+            isOuter = True
+            exitL = self.getL()
+            self.exitL = exitL
+
         if curNode != None:
-            for val in curNode:
-                self.visit(val)
-        self.addToTac(('GOTO',None,None,end_segment))
-       
-       #visit each if else block
+            self.visit(curNode[0])
+            self.addToTac(('GOTO',None,None,f'_L{exitL}'))
+
         keys = []
-        
-        for ifStmt, L in ifStatements:
+        for ifStmt, L in s:
             self.key = f'_L{L}'
             for body in ifStmt.body:
                 for element in body:
-                    self.key= f'_L{L}'
-                    self.visit(element,end_segment=end_segment)
+                    self.key = f'_L{L}'
+                    self.visit(element)
             self.key = f'_L{L}'
             keys.append(f'_L{L}')
         for key in keys:
-            self.tac[key].append(('GOTO',None,None,end_segment))
-
-       
+            self.tac[key].append(('GOTO',None,None,f'_L{exitL}'))
+        
+        if isOuter:
+            self.exitL = None
+        return exitL
     
-    def visit_Module(self, node):
+    def visit_Module(self, node, new_var = False):
         """ visit a Module node and the visits recursively"""
         for child in ast.iter_child_nodes(node):
-            if type(child) in [ast.If]:
-                #New flows added
-                end_segment = f'_L{self.getL()}'
-                self.visit(child, end_segment = end_segment)
-                self.key = end_segment
-            else:
-                self.visit(child)
+                exitL = self.visit(child)
+                if type(child) in [ast.If]:
+                    self.key = f'_L{exitL}'
 
-    def visit(self, node, end_segment = None):
-        support_end_segment = [ast.If]
-        op_map ={
-            ast.If: self.visit_If
-        }
-        if end_segment and type(node) in support_end_segment:
-            return op_map[type(node)](node, end_segment=end_segment)
+    def visit(self, node, new_var = False):
+        support_new_var = [ast.BinOp, ast.BoolOp]
+        if new_var and type(node) in support_new_var:
+            return self.visit_BinOp(node, new_var)
         else:
             return super().visit(node)
             
 
-    def generic_visit(self, node):
+    def generic_visit(self, node, new_var = False):
         print('here')
         pass
 
