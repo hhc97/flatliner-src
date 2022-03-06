@@ -116,12 +116,7 @@ class ASTVisitor(ast.NodeVisitor):
             right = self.visit(right)
         self.addToTac((operator, left, right, var))
         return var
-    
-    def visit_Call(self, node):
-        """ visit a Call node and visits it recursively"""
-        print(type(node).__name__)
-
-    
+        
     def visit_Lambda(self, node):
         """ visit a Function node """
         print(type(node).__name__)
@@ -184,20 +179,27 @@ class ASTVisitor(ast.NodeVisitor):
         tempVar = self.visit(node.test, end_segment=end_segment)
 
         new_L = self.getL()
-        self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
+        self.addToTac(("WHILE",tempVar,None, f'_L{new_L}'))
         self.addToTac(("GOTO", None, None, end_segment))
 
         for expr in node.body[0]:
             self.key = f'_L{new_L}'
             self.visit(expr, end_segment=end_segment)
-        tempVar = self.visit(node.test, end_segment=end_segment)
-        self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
+       # tempVar = self.visit(node.test, end_segment=end_segment)
+       # self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
         self.addToTac(("GOTO", None, None, end_segment))
 
     def visit_For(self, node, end_segment = None):
         identifier = self.visit(node.target)
         iterates = self.visit(node.iter)
-        # TODO
+        
+        jumpL = self.getL()
+        self.addToTac(('FOR', identifier, iterates, f'_L{jumpL}'))
+        for body in node.body:
+            self.key = f'_L{jumpL}'
+            self.visit(body)
+        self.addToTac(("GOTO", None, None, end_segment))
+        
 
     def visit_Return(self, node):
         tempVar = self.visit(node.value)
