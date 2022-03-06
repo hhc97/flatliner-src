@@ -176,12 +176,26 @@ class ASTVisitor(ast.NodeVisitor):
         for key in keys:
             self.tac[key].append(('GOTO',None,None,end_segment))
 
+    def visit_While(self, node, end_segment = None):
+        tempVar = self.visit(node.test, end_segment=end_segment)
+
+        new_L = self.getL()
+        self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
+        self.addToTac(("GOTO", None, None, end_segment))
+
+        for expr in node.body[0]:
+            self.key = f'_L{new_L}'
+            self.visit(expr, end_segment=end_segment)
+        tempVar = self.visit(node.test, end_segment=end_segment)
+        self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
+        self.addToTac(("GOTO", None, None, end_segment))
+
        
     
     def visit_Module(self, node):
         """ visit a Module node and the visits recursively"""
         for child in ast.iter_child_nodes(node):
-            if type(child) in [ast.If]:
+            if type(child) in [ast.If, ast.While]:
                 #New flows added
                 end_segment = f'_L{self.getL()}'
                 self.visit(child, end_segment = end_segment)
@@ -190,9 +204,10 @@ class ASTVisitor(ast.NodeVisitor):
                 self.visit(child)
 
     def visit(self, node, end_segment = None):
-        support_end_segment = [ast.If]
+        support_end_segment = [ast.If, ast.While]
         op_map ={
-            ast.If: self.visit_If
+            ast.If: self.visit_If,
+            ast.While: self.visit_While
         }
         if end_segment and type(node) in support_end_segment:
             return op_map[type(node)](node, end_segment=end_segment)
