@@ -10,7 +10,7 @@ code = []
 START = 'main'
 TEMP = 't_'
 BLOCK = '_L'
-DEBUG = False
+DEBUG = True
 
 class TACConverter:
 
@@ -190,10 +190,10 @@ class TACConverter:
     def for_handler(self, statement, var_d, outer_code):
         print('FOR')
         var, iterator, block = statement[1:]
-        body = self.convert(self.tac[block], var_d.copy())
         iterator = self.constant_handler(iterator, var_d)
-        var = ast.Name(var, ast.Store())
         var_d[var] = var
+        var = ast.Name(var, ast.Store())
+        body = self.convert(self.tac[block], var_d.copy())
         outer_code.append(ast.For(var, iterator, body, [], lineno = self.lineno))     
         goto_block = self.tac[block][-1][3]
         # add goto code to outer code
