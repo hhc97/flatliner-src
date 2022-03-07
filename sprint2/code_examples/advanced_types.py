@@ -1,8 +1,3 @@
-"""
-A test for advanced types.
-"""
-
-
 def test(a, b):
     new = []
     for i in b:
