@@ -1,22 +1,30 @@
 Name: Ritvik Bhardwaj
 Student Number: 1004042537
 Group Members: Haocheng Hu, Naaz Sibia, Ritvik Bhardwaj
-Sprint: X
+Sprint: 2
 
 Contributions:
- Ritvik Bhardwaj (x%)
-    - 
-    - 
-    - 
+ Ritvik Bhardwaj (33%)
+   - Worked on defining IR, and alot of the 3ac code
+   - Added documentation for IR
+   - Brainstormed optimizations to make for the next sprint.
+   - Helped Haocheng build epic website 
+   - Proud owner of makemesuffer.com now
 
 
- Haocheng Hu (x%)
-    - 
-    - 
-    - 
+ Haocheng Hu (33%)
+   - Worked on AST to one liner converter
+   - Added documentation for AST converter 
+   - created test cases and testing suite
+   - created base code for our website
+   - Proud owner of makemesuffer.com now
 
 
- Naaz Sibia (x%)
-    - 
-    - 
-    - 
+ Naaz Sibia (33%)
+   - Worked on IR representation (converting 3AC to AST)
+   - Worked on documentation for IR
+   - Fought a tireless battle against her nerves to work when she should've been resting >:C 
+   - Proud owner of makemesuffer.com now
+
+ Michael Liut (1%)
+ - For his disinterest in pineapples on pizza
