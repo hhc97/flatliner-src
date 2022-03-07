@@ -152,7 +152,7 @@ class TACConverter:
 
     def if_handler(self, statement, var_d, else_block, outer_code):
         print('IF')
-        cond = var_d[statement[1]]
+        cond = self.constant_handler(statement[1], var_d)
         if_block = statement[3]
         index = 0
         while index < len(else_block):
