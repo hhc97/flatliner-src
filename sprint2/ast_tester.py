@@ -1,6 +1,6 @@
 import ast
 
-from unparser import Unparser
+from flatline import Flatliner
 
 TO_TEST = """
 a = 1 + 2
@@ -13,6 +13,11 @@ print(ast.dump(ast_rep, indent=4))
 print('-----')
 print(ast.unparse(ast_rep))
 print('-----')
-a = Unparser()
-a.ast = ast_rep
-print(a.unparse())
+flattener = Flatliner()
+flattener.ast = ast_rep
+flattened = flattener.unparse()
+print(flattened)
+print('===== lambda output =====')
+exec(flattened)
+print('===== original output =====')
+exec(TO_TEST)

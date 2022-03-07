@@ -7,8 +7,8 @@ import re
 from contextlib import redirect_stdout
 from io import StringIO
 
+from flatline import Flatliner
 from python_parser import PythonParser
-from unparser import Unparser
 
 
 def clean_contents(s: str) -> str:
@@ -49,24 +49,35 @@ def get_exec_output(code_string: str) -> str:
     """
     capture = StringIO()
     with redirect_stdout(capture):
-        exec(code_string)
+        exec(code_string, {})
     return capture.getvalue()
+
+
+FLATLINER = Flatliner()
 
 
 def check_unparse_result(test_input_filepath: str) -> None:
     with open(test_input_filepath, 'r') as infile:
         file_contents = infile.read()
 
-        unparser = Unparser()
-        unparser.set_ast(file_contents)
+        FLATLINER.ast = ast.parse(file_contents)
 
-        result = unparser.unparse()
+        result = FLATLINER.unparse()
         assert result.count('\n') == 0, 'output is not one line'  # check that its one line
         assert result.count(';') == 0, 'output contains semicolons'  # check that no semicolons are used
 
         original_output = get_exec_output(file_contents)
         new_output = get_exec_output(result)
         assert original_output == new_output, f'outputs different for {test_input_filepath}'
+
+        with open(f'./out/{test_input_filepath.split("/")[-1][:-3]}.flattened.py', 'w') as outfile:
+            outfile.write(f'# below is the 1 line version of the file "{test_input_filepath}"\n')
+            outfile.write(result + '\n' * 3)
+            outfile.write('# if you execute this file, the output will be the same as the original file,'
+                          ' which is as follows:')
+            outfile.write('\n"""\n')
+            outfile.write(new_output)
+            outfile.write('"""\n')
 
 
 def test_assignments():
@@ -87,17 +98,19 @@ def test_comprehensive():
 
 def test_real_files():
     base = './code_examples'
+    ignored = ['advanced_types.py', 'everything_else.py']
     for file in os.listdir(base):
-        if not file.endswith('advanced_types.py'):
+        if not any(file.endswith(ending) for ending in ignored):
             compare_parser(base + '/' + file)
 
 
-def test_unparse_files():
+def test_unparse_files_multiple():
     base = './code_examples'
-    ignored = ['advanced_types.py', 'for_loops.py']
+    ignored = []
     for file in os.listdir(base):
         if not any(file.endswith(ending) for ending in ignored):
             check_unparse_result(base + '/' + file)
+    assert FLATLINER.all_hit()
 
 
 def run_tests() -> None:
@@ -116,6 +129,7 @@ def run_tests() -> None:
             passed.append(name)
     if not failed:
         print(f'All {len(passed)} tests passed.')
+        print('\nPlease see the "/out" directory for produced artifacts.')
     else:
         print(f'Total {len(passed) + len(failed)} tests, failed {len(failed)}:')
         for test in failed:
