@@ -233,7 +233,10 @@ class Flatliner:
         return f'lambda{" " if args else ""}{args}: {self.apply_handler(node.body)}'
 
     def handle_functiondef(self, node, cont) -> str:
-        return construct_lambda({node.name: self.handle_methoddef(node, '')}, cont)
+        curr = self.handle_methoddef(node, '')
+        for n in node.decorator_list[::-1]:
+            curr = f"{self.apply_handler(n)}({curr})"
+        return construct_lambda({node.name: curr}, cont)
 
     def handle_classdef(self, node, cont) -> str:
         attr_dict = {}
