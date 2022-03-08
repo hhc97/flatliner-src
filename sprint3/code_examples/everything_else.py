@@ -210,3 +210,19 @@ def sum_list_recursive(lst):
 
 
 print(sum_list_recursive(list(range(15))))
+
+
+def do_twice(func):
+    def wrapper_do_twice():
+        func()
+        func()
+
+    return wrapper_do_twice
+
+
+@do_twice
+def double_print():
+    print('double printer')
+
+
+double_print()
