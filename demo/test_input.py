@@ -243,7 +243,7 @@ class Flatliner:
         for node in body[::-1]:
             if not isinstance(node, ast.Expr) or isinstance(node.value, ast.Call):
                 temp = self.apply_handler2(node, temp)
-        return temp
+        return str(temp)
 
     def unparse(self) -> str:
         """
