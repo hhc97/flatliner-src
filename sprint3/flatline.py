@@ -40,6 +40,7 @@ class Flatliner:
             ast.AugAssign: self.handle_augassign,
             ast.Constant: self.handle_constant,
             ast.Expr: self.handle_expr,
+            ast.keyword: self.handle_keyword,
             ast.Call: self.handle_call,
             ast.Name: self.handle_name,
             ast.While: self.handle_while,
@@ -169,8 +170,12 @@ class Flatliner:
     def handle_expr(self, node, cont) -> str:
         return self.apply_handler(node.value, cont)
 
+    def handle_keyword(self, node, cont) -> str:
+        return f'{node.arg}={self.apply_handler(node.value)}'
+
     def handle_call(self, node, cont) -> str:
-        call = f'{self.apply_handler(node.func)}({", ".join(self.apply_handler(child) for child in node.args)})'
+        args = ', '.join(self.apply_handler(child) for child in node.args + node.keywords)
+        call = f'{self.apply_handler(node.func)}({args})'
         return call if not cont else f'[{call}, {cont}][-1]'
 
     def handle_binop(self, node, cont) -> str:
