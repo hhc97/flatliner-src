@@ -256,7 +256,7 @@ class Flatliner:
         raise ValueError(f'Handler not found for {node}')
 
     def unparse_list(self, body: list, cont=None) -> str:
-        temp = cont
+        temp = str(cont)
         for node in body[::-1]:
             if not isinstance(node, ast.Expr) or isinstance(node.value, ast.Call):
                 temp = self.apply_handler(node, temp)
