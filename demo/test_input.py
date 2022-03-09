@@ -152,8 +152,12 @@ class Flatliner:
     def handle_expr(self, node, cont) -> str:
         return self.apply_handler2(node.value, cont)
 
+    def handle_keyword(self, node, cont) -> str:
+        return f'{node.arg}={self.apply_handler(node.value)}'
+
     def handle_call(self, node, cont) -> str:
-        call = f'{self.apply_handler(node.func)}({", ".join(self.apply_handler(child) for child in node.args)})'
+        args = ', '.join(self.apply_handler(child) for child in node.args + node.keywords)
+        call = f'{self.apply_handler(node.func)}({args})'
         return call if not cont else f'[{call}, {cont}][-1]'
 
     def handle_binop(self, node, cont) -> str:
@@ -216,7 +220,10 @@ class Flatliner:
         return f'lambda{" " if args else ""}{args}: {self.apply_handler(node.body)}'
 
     def handle_functiondef(self, node, cont) -> str:
-        return construct_lambda({node.name: self.handle_methoddef(node, '')}, cont)
+        curr = self.handle_methoddef(node, '')
+        for n in node.decorator_list[::-1]:
+            curr = f"{self.apply_handler(n)}({curr})"
+        return construct_lambda({node.name: curr}, cont)
 
     def handle_classdef(self, node, cont) -> str:
         attr_dict = {}
