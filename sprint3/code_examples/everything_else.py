@@ -220,7 +220,21 @@ def do_twice(func):
     return wrapper_do_twice
 
 
+def extra_print(num_times):
+    def repeat_print(func):
+        def wrapper_repeat():
+            func()
+            for i1 in range(num_times):
+                print('extra print', i1)
+
+        return wrapper_repeat
+
+    return repeat_print
+
+
+@extra_print(num_times=3)
 @do_twice
+@extra_print(num_times=2)
 def double_print():
     print('double printer')
 
