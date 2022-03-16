@@ -7,8 +7,10 @@ import re
 from contextlib import redirect_stdout
 from io import StringIO
 
+from code_to_tac import ASTVisitor
 from flatline import Flatliner
 from python_parser import PythonParser
+from tac_to_code import TACConverter
 
 
 def clean_contents(s: str) -> str:
@@ -28,7 +30,7 @@ def compare_parser(test_input_filepath: str) -> None:
         ast_rep = parser.get_ast(file_contents)
         dump = ast.unparse(ast_rep)
 
-        with open(f'./out/{test_input_filepath.split("/")[-1]}.ast.txt', 'w') as outfile:
+        with open(f'./out/{test_input_filepath.split("/")[-1][:-3]}.ast.txt', 'w') as outfile:
             outfile.write(file_contents)
             outfile.write('\n----------------AST representation below-----------------\n')
             outfile.write(ast.dump(ast_rep, indent=4))
@@ -80,6 +82,34 @@ def check_unparse_result(test_input_filepath: str) -> None:
             outfile.write('"""\n')
 
 
+def end_to_end(test_input_filepath: str) -> None:
+    with open(test_input_filepath, 'r') as infile:
+        file_contents = infile.read()
+        parser = PythonParser()
+        parser.build()
+        # get ast from parser
+        ast_rep = parser.get_ast(file_contents)
+        # convert ast to tac
+        visitor = ASTVisitor()
+        visitor.visit(ast_rep)
+        # write tac to file
+        with open(f'./out/{test_input_filepath.split("/")[-1][:-3]}.tac.py', 'w') as outfile:
+            outfile.write(f'tac = {repr(visitor.tac)}')
+        # convert tac back into ast
+        tac_converter = TACConverter(visitor.tac)
+        final_ast = tac_converter.get_ast()
+        # try to unparse the final ast to get to our target
+        flatliner = Flatliner()
+        flatliner.ast = final_ast
+        result = flatliner.unparse()
+        assert result.count('\n') == 0, 'output is not one line'  # check that its one line
+        assert result.count(';') == 0, 'output contains semicolons'  # check that no semicolons are used
+
+        original_output = get_exec_output(file_contents)
+        new_output = get_exec_output(result)
+        assert original_output == new_output, f'outputs different for {test_input_filepath}'
+
+
 def test_assignments():
     compare_parser('code_examples/assignments.py')
 
@@ -111,6 +141,14 @@ def test_unparse_files_multiple():
         if not any(file.endswith(ending) for ending in ignored):
             check_unparse_result(base + '/' + file)
     assert FLATLINER.all_hit()
+
+
+def test_tac_conversion():
+    base = './code_examples'
+    ignored = ['advanced_types.py', 'everything_else.py', 'advanced_ifs_and_loops.py', 'loops_flow_control.py']
+    for file in os.listdir(base):
+        if not any(file.endswith(ending) for ending in ignored):
+            end_to_end(base + '/' + file)
 
 
 def run_tests() -> None:
