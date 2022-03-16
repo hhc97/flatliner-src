@@ -62,9 +62,9 @@ class TACConverter:
         handlers = {'+': self.binary_handler, '-': self.binary_handler, '*': self.binary_handler,
                     '/': self.binary_handler,
                     'OR': self.bool_handler, 'AND': self.bool_handler, '==': self.comp_handler, '>': self.comp_handler,
-                    '<': self.comp_handler, '<=': self.comp_handler, '>=': self.comp_handler,
+                    '<': self.comp_handler, '<=': self.comp_handler, '>=': self.comp_handler, '!=': self.comp_handler,
                     '=': self.assignment_handler,
-                    'IN': self.comp_handler,
+                    'in': self.comp_handler,
                     'RETURN': self.return_handler
                     }
         node = handlers[op](statement, var_d)
@@ -142,7 +142,7 @@ class TACConverter:
             '<=': ast.LtE(),
             '==': ast.Eq(),
             '!=': ast.NotEq(),
-            'IN': ast.In(),
+            'in': ast.In(),
         }
         left = self.constant_handler(left, var_d)
         right = self.constant_handler(right, var_d)
