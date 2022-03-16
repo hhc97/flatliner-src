@@ -126,6 +126,8 @@ d = c[0] + ''.join(c[1:-1]) + c[-1]
 print(d)
 print(math.e)
 
+assert one() and two(), 'three'
+
 
 class TestClass:
     def __init__(self):
@@ -137,11 +139,15 @@ class TestClass:
 
     def test_recursive_method(self, n):
         if n > 5:
+            assert n > 5, 'oops'
             return self.test_recursive_method(n / 2)
         return self.test_method(str(n))
 
     def test_recursive_create(self):
         return TestClass()
+
+    def test_default_param_method(self, p1, p2=5):
+        return p1 + p2
 
 
 testclass = TestClass()
@@ -155,6 +161,17 @@ for thing in [testclass, testclass2]:
 print(testclass.x, testclass2.x)
 testclass.x = 10
 print(testclass.x, testclass2.x)
+
+print(testclass.test_default_param_method(1, 2))
+print(testclass.test_default_param_method(1))
+
+
+def test_default_param_func(p1, p2='hello', p3='world'):
+    return ' '.join([p1, p2, p3])
+
+
+print(test_default_param_func('test1'))
+print(test_default_param_func('test2', p3='python!'))
 
 a = 0
 while a < 5:
@@ -205,6 +222,8 @@ print(a)
 def sum_list_recursive(lst):
     if len(lst) == 1:
         return lst[0]
+    else:
+        pass
     lst[0] += lst[-1]
     return sum_list_recursive(lst[:-1])
 
@@ -240,3 +259,29 @@ def double_print():
 
 
 double_print()
+
+print(one() if False else two())
+
+
+class BinarySearchTree:
+    # test recursive init method of class
+    def __init__(self, root) -> None:
+        """Initialize a new BST containing only the given root value.
+
+        If <root> is None, initialize an empty tree.
+        """
+        if root is None:
+            self._root = None
+            self._left = None
+            self._right = None
+        else:
+            self._root = root
+            self._left = BinarySearchTree(None)
+            self._right = BinarySearchTree(None)
+
+    def is_empty(self) -> bool:
+        return self._root is None
+
+
+print(BinarySearchTree(10)._right is None)
+print(BinarySearchTree(10)._right.is_empty())

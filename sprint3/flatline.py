@@ -43,6 +43,11 @@ class Flatliner:
             ast.keyword: self.handle_keyword,
             ast.Call: self.handle_call,
             ast.Name: self.handle_name,
+            ast.Raise: self.handle_raise,
+            ast.Assert: self.handle_assert,
+            ast.Pass: self.handle_pass,
+            ast.Break: self.handle_loop_flow,
+            ast.Continue: self.handle_loop_flow,
             ast.While: self.handle_while,
             ast.For: self.handle_for,
             ast.List: self.handle_list,
@@ -54,6 +59,7 @@ class Flatliner:
             ast.Attribute: self.handle_attribute,
             ast.BinOp: self.handle_binop,
             ast.If: self.handle_if,
+            ast.IfExp: self.handle_if,
             list: self.unparse_list,
             ast.Compare: self.handle_compare,
             ast.BoolOp: self.handle_boolop,
@@ -101,6 +107,23 @@ class Flatliner:
     def handle_name(self, node, cont) -> str:
         return node.id
 
+    def handle_pass(self, node, cont) -> str:
+        return cont
+
+    def handle_loop_flow(self, node, cont) -> str:
+        return node.contents
+
+    def handle_raise(self, node, cont) -> str:
+        return f'(_ for _ in []).throw({self.apply_handler(node.exc)})'
+
+    def handle_assert(self, node, cont) -> str:
+        message = '' if node.msg is None else f'({self.apply_handler(node.msg)})'
+        error = ast.parse(f'raise AssertionError{message}').body[0]
+        return f'({cont} if {self.apply_handler(node.test)} else {self.apply_handler(error)})'
+
+    def _next_item(self) -> str:
+        return f'next(_items{self.loop_no}, _term{self.loop_no})'
+
     def handle_while(self, node, cont) -> str:
         self.needs_y = True
         assigned_in_loop = {self.apply_handler(n.targets[0]) for n in ast.walk(node) if
@@ -110,23 +133,32 @@ class Flatliner:
         args = ', '.join(assigned_in_loop)
         loop_test = self.apply_handler(node.test)
         loop_id = f'_loop{self.loop_no}'
+        loop_call = f'{loop_id}({args})'
+        for n in ast.walk(node):
+            if isinstance(n, ast.Break):
+                n.contents = cont
+            if isinstance(n, ast.Continue):
+                if hasattr(node, 'target'):
+                    n.contents = construct_lambda({node.target: self._next_item()}, loop_call)
+                else:
+                    n.contents = loop_call
         self.loop_no += 1
-        loop_body = self.apply_handler(node.body, f'{loop_id}({args})')
+        loop_body = self.apply_handler(node.body, loop_call)
         loop_repr = construct_lambda(
-            {loop_id: f'_Y(lambda {loop_id}: (lambda {args}: ({loop_body}) if {loop_test} else {cont}))'},
-            f'{loop_id}({args})')
+            {loop_id: f'_Y(lambda {loop_id}: (lambda {args}: ({loop_body}) if {loop_test} else {cont}))'}, loop_call)
         return construct_lambda({v: f'{v} if "{v}" in dir() else None' for v in assigned_in_loop}, loop_repr)
 
     def handle_for(self, node, cont) -> str:
         target = self.apply_handler(node.target)
         iter_id = f'_items{self.loop_no}'
         term_id = f'_term{self.loop_no}'
-        post = ast.parse(f'{target} = next({iter_id}, {term_id})').body
+        post = ast.parse(f'{target} = {self._next_item()}').body
         body_list = node.body + post
         while_test = ast.parse(f'{target} is not {term_id}').body[0]
         while_equivalent = ast.While(while_test, body_list)
+        while_equivalent.target = target
         return construct_lambda({term_id: '[]', iter_id: f'iter({self.apply_handler(node.iter)})'},
-                                construct_lambda({target: f'next({iter_id}, {term_id})'},
+                                construct_lambda({target: self._next_item()},
                                                  self.apply_handler(while_equivalent, cont)))
 
     def _handle_container(self, node) -> str:
@@ -184,8 +216,13 @@ class Flatliner:
             ast.Sub: '-',
             ast.Mult: '*',
             ast.Div: '/',
+            ast.FloorDiv: '//',
             ast.Mod: '%',
+            ast.Pow: '**',
+            ast.LShift: '<<',
+            ast.RShift: '>>',
             ast.BitOr: '|',
+            ast.BitXor: '^',
             ast.BitAnd: '&',
         }
         return f'({self.apply_handler(node.left)} {op_map[type(node.op)]} {self.apply_handler(node.right)})'
@@ -207,7 +244,7 @@ class Flatliner:
         return f'{op_map[type(node.op)]}{self.apply_handler(node.operand)}'
 
     def handle_if(self, node, cont) -> str:
-        return f'{self.apply_handler(node.body, cont)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse, cont)}'
+        return f'({self.apply_handler(node.body, cont)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse, cont)})'
 
     def handle_compare(self, node, cont) -> str:
         op_map = {
@@ -225,13 +262,15 @@ class Flatliner:
         return f'{self.apply_handler(node.left)} {op_map[type(node.ops[0])]} {self.apply_handler(node.comparators[0])}'
 
     def handle_methoddef(self, node, cont) -> str:
-        args = ', '.join(arg.arg for arg in node.args.args)
+        all_args = [arg.arg for arg in node.args.args]
+        defaults = [f'={self.apply_handler(val)}' for val in node.args.defaults]
+        padding = [''] * (len(all_args) - len(defaults))
+        args = ', '.join(arg + val for arg, val in zip(all_args, padding + defaults))
+        for n in ast.walk(node):
+            if cont and isinstance(n, ast.Call) and self.apply_handler(n.func) == cont.split('.')[0]:
+                n.func.id = 'self.__class__'
         if cont.endswith('__init__'):
             return f'lambda{" " if args else ""}{args}: [{self.apply_handler(node.body)}, None][-1]'
-        if cont:
-            for n in ast.walk(node):
-                if isinstance(n, ast.Call) and self.apply_handler(n.func) == cont.split('.')[0]:
-                    n.func.id = 'self.__class__'
         if any(isinstance(n, ast.Call) and self.apply_handler(n.func) == node.name for n in ast.walk(node)):
             self.needs_y = True
             return f'_Y(lambda {node.name}: (lambda {args}: {self.apply_handler(node.body)}))'
@@ -270,13 +309,13 @@ class Flatliner:
                 temp = self.apply_handler(node, temp)
         return str(temp)
 
-    def unparse(self, root=None) -> str:
+    def unparse(self) -> str:
         """
         Unparses the ast.
         """
         self.needs_y = False
         self.loop_no = 1
-        curr = root if root else self.ast
+        curr = self.ast
         if hasattr(curr, 'body') and isinstance(curr.body, list):
             body = self.apply_handler(curr.body)
             return provide_y(body) if self.needs_y else body
