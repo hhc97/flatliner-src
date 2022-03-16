@@ -1,6 +1,6 @@
 import ast
 
-from code_to_3ac import ASTVisitor
+from code_to_tac import ASTVisitor
 from python_parser import PythonParser
 
 code = []
