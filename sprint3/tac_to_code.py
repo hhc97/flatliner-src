@@ -216,6 +216,10 @@ class TACConverter:
         node = ast.FunctionDef(func_block, param_lst, func_code, decorator_list=[], lineno=self.lineno)
         outer_code.append(node)
 
+    def get_ast(self):
+        body = self.convert()
+        return ast.Module(body, [])
+
 
 if __name__ == '__main__':
     visitor = ASTVisitor()
@@ -230,8 +234,7 @@ if __name__ == '__main__':
     print(visitor.tac)
 
     converter = TACConverter(visitor.tac)
-    code = converter.convert()
-    wrap = ast.Module(code, [])
+    wrap = converter.get_ast()
     if DEBUG:
         print(ast.dump(wrap, indent=4))
     print(f'Code:\n{ast.unparse(wrap)}')
