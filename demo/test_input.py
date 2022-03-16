@@ -74,7 +74,7 @@ class Flatliner:
         """
         file = open(infile, 'r')
         self.ast = ast.parse(file.read())
-        close = file.close()
+        file.close()
 
     def apply_handler(self, node, cont=None):
         return self.node_handlers.get(type(node), self.handle_error)(node, cont)
