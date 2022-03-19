@@ -202,7 +202,7 @@ class ASTVisitor(ast.NodeVisitor):
         for arg in node.args:
             tempVar = self.visit(arg)
             self.addToTac(("PUSH-PARAM", None, None, tempVar))
-        self.addToTac(("CALL", None, None, self.visit(node.func)))
+        self.addToTac(("CALL", None, len(node.args), self.visit(node.func)))
         return 'ret'
 
     def visit_Expr(self, node):
