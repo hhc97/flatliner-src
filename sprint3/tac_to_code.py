@@ -1,5 +1,4 @@
 import ast
-from fileinput import lineno
 
 from code_to_tac import ASTVisitor
 from python_parser import PythonParser
@@ -10,6 +9,10 @@ TEMP = 't_'
 BLOCK = '_L'
 DEBUG = False
 
+def printd(*args, **kwargs):
+    """Printing for debugging"""
+    if DEBUG:
+        print(*args, **kwargs)
 
 class TACConverter:
 
@@ -54,7 +57,7 @@ class TACConverter:
                 var_d['ret'] = node
                 if index < len(statements):
                     next_stmt = statements[index]
-                    if 'ret' in [next_stmt[1], next_stmt[3]]:
+                    if 'ret' in next_stmt:
                         continue
                 expr_node = ast.Expr(node)
                 code.append(expr_node)
@@ -71,7 +74,9 @@ class TACConverter:
                     '<': self.comp_handler, '<=': self.comp_handler, '>=': self.comp_handler, '!=': self.comp_handler,
                     '=': self.assignment_handler,
                     'in': self.comp_handler,
-                    'RETURN': self.return_handler
+                    'RETURN': self.return_handler,
+                    'CONTINUE': self.continue_handler,
+                    'BREAK': self.break_handler
                     }
         node = handlers[op](statement, var_d)
         if var:
@@ -99,7 +104,7 @@ class TACConverter:
         return ast.Constant(constant, type_map[type(constant)])
 
     def call_handler(self, statement, var_d, params):
-        print('CALL')
+        printd('CALL')
         num_params = statement[2]
         call_params = params[-num_params:]
         for _ in range(num_params): 
@@ -110,12 +115,18 @@ class TACConverter:
         return ast.Call(name, call_params, [], lineno = self.lineno)
 
     def return_handler(self, statement, var_d):
-        print('RETURN')
+        printd('RETURN')
         right_side = self.constant_handler(statement[3], var_d)
         return ast.Return(right_side)
 
+    def continue_handler(self, statement=None, var_d=None):
+        return ast.Continue()
+    
+    def break_handler(self, statement=None, var_d=None):
+        return ast.Break()
+
     def binary_handler(self, statement, var_d):
-        print('BIN')
+        printd('BIN')
         op, left, right, var = statement
         op_map = {
             '+': ast.Add(),
@@ -133,7 +144,7 @@ class TACConverter:
         return ast.Assign([ast.Name(var, ast.Store())], expr, lineno=self.lineno)
 
     def bool_handler(self, statement, var_d):
-        print('BOOL')
+        printd('BOOL')
         op, left, right, var = statement
         op_map = {
             'AND': ast.And(),
@@ -159,7 +170,7 @@ class TACConverter:
         return ast.Compare(left, [op_map[op]], [right])
 
     def if_handler(self, statement, var_d, else_block, outer_code):
-        print('IF')
+        printd('IF')
         cond = self.constant_handler(statement[1], var_d)
         if_block = statement[3]
         index = 0
@@ -185,7 +196,7 @@ class TACConverter:
         outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
 
     def while_handler(self, statement, var_d, outer_code):
-        print('WHILE')
+        printd('WHILE')
         cond = self.constant_handler(statement[1], var_d)
         block = statement[3]
         body = self.convert(self.tac[block], var_d.copy())
@@ -196,7 +207,7 @@ class TACConverter:
         outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
 
     def for_handler(self, statement, var_d, outer_code):
-        print('FOR')
+        printd('FOR')
         var, iterator, block = statement[1:]
         iterator = self.constant_handler(iterator, var_d)
         var_d[var] = var
@@ -208,7 +219,7 @@ class TACConverter:
         outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
 
     def function_hander(self, statement, var_d, outer_code):
-        print("FUNC")
+        printd("FUNC")
         func_block = statement[3]
         func_code = self.tac.get(func_block, [])
         params = []
@@ -221,6 +232,7 @@ class TACConverter:
             params.append(ast.arg(param))
             var_d[param] = param
             index += 1
+        printd(func_code[index:])
         func_code = self.convert(func_code[index:], var_d)
         param_lst = ast.arguments([], params, [], [], [], [], [])
         node = ast.FunctionDef(func_block, param_lst, func_code, decorator_list=[], lineno=self.lineno)
@@ -228,7 +240,6 @@ class TACConverter:
 
     def get_ast(self):
         body = self.convert()
-        print(body)
         return ast.Module(body, [])
 
 
@@ -239,13 +250,13 @@ if __name__ == '__main__':
     parser.build()
     tree = parser.get_ast(infile.read())
 
-    if DEBUG:
-        print(ast.dump(tree, indent=4))
+
+    printd(ast.dump(tree, indent=4))
     visitor.visit(tree)
     print(visitor.tac)
 
     converter = TACConverter(visitor.tac)
     wrap = converter.get_ast()
-    if DEBUG:
-        print(ast.dump(wrap, indent=4))
+   
+    printd(ast.dump(wrap, indent=4))
     print(f'Code:\n{ast.unparse(wrap)}')
