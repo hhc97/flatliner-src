@@ -203,9 +203,13 @@ class ASTVisitor(ast.NodeVisitor):
 
         jumpL = self.getL()
         self.addToTac(('FOR', identifier, iterates, f'_L{jumpL}'))
+        cur_end_segment = f'_L{jumpL}'
         for body in node.body:
-            self.key = f'_L{jumpL}'
-            self.visit(body)
+            self.key = cur_end_segment
+            if type(body) in [ast.If, ast.While, ast.For]:
+                cur_end_segment = f'_L{self.getL()}'
+            self.visit(body, end_segment=cur_end_segment)
+
         self.addToTac(("GOTO", None, None, end_segment))
 
     def visit_Return(self, node):
