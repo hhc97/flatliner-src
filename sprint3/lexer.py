@@ -15,6 +15,8 @@ reserved = {
     'return': 'RETURN',
     ',': 'COMMA',
     'or': 'OR',
+    'break': 'BREAK',
+    'continue': 'CONTINUE',
     'and': 'AND',
     'def': 'DEF',
     'None': 'NONE',
