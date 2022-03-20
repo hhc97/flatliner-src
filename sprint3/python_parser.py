@@ -195,7 +195,7 @@ class PythonParser:
         """
         expr : LBRACE args_or_empty RBRACE
         """
-        p[0] = ast.List(p[2])
+        p[0] = ast.List(p[2] if p[2] else [])
 
     def p_args(self, p):
         """
@@ -288,6 +288,7 @@ class PythonParser:
              | expr MINUS expr
              | expr TIMES expr
              | expr DIVIDE expr
+             | expr MODULO expr
         """
         printd("binary op")
         op_map = {
@@ -295,6 +296,7 @@ class PythonParser:
             '-': ast.Sub(),
             '*': ast.Mult(),
             '/': ast.Div(),
+            '%': ast.Mod()
         }
         p[0] = ast.BinOp(p[1], op_map[p[2]], p[3])
 
