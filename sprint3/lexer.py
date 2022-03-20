@@ -13,7 +13,6 @@ reserved = {
     'while': 'WHILE',
     'for': 'FOR',
     'return': 'RETURN',
-    ':': 'COLON',
     ',': 'COMMA',
     'or': 'OR',
     'and': 'AND',
@@ -37,6 +36,7 @@ tokens = [
              'TIMES',
              'DIVIDE',
              'DOT',
+             'COLON',
 
              'PE',  # +=
              'ME',  # -=
@@ -57,7 +57,6 @@ tokens = [
              'LBRACE',
              'RBRACE',
              'WS',
-
              'DEDENT',
              'INDENT'
          ] + list(reserved.values())
@@ -91,6 +90,7 @@ class PythonLexer:
         return t
 
     t_ignore_COMMENT = r'\#.*'
+    t_COLON = r':'
 
     def t_STRING(self, t):
         r'[\'][^\']*[\']|[\"][^\"]*[\"]'
@@ -98,7 +98,7 @@ class PythonLexer:
         return t
 
     def t_ID(self, t):
-        r'[a-zA-Z_:,][a-zA-Z_0-9]*'
+        r'[a-zA-Z_,][a-zA-Z_0-9]*'
         t.type = reserved.get(t.value, 'ID')  # Check for reserved words
         return t
 
@@ -191,10 +191,17 @@ class PythonLexer:
         lexer.at_line_start = True
         at_line_start = True
         indent = NO_INDENT
+        is_in_list = False
         for token in tokens:
             token.at_line_start = at_line_start
 
-            if token.type == "COLON":
+            if token.type == "LBRACE":
+                is_in_list = True 
+                token.must_indent = False
+            elif token.type == "RBRACE":
+                is_in_list = False
+                token.must_indent = False
+            elif token.type == "COLON" and not is_in_list:
                 at_line_start = False
                 indent = MUST_INDENT
                 token.must_indent = False
