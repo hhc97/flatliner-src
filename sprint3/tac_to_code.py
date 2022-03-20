@@ -1,4 +1,5 @@
 import ast
+from fileinput import lineno
 
 from code_to_tac import ASTVisitor
 from python_parser import PythonParser
@@ -7,7 +8,7 @@ code = []
 START = 'main'
 TEMP = 't_'
 BLOCK = '_L'
-DEBUG = True
+DEBUG = False
 
 
 class TACConverter:
@@ -51,7 +52,12 @@ class TACConverter:
                 node = self.call_handler(statement, var_d, params)
                 self.lineno += 1
                 var_d['ret'] = node
-                params = []  # reset stack
+                if index < len(statements):
+                    next_stmt = statements[index]
+                    if 'ret' in [next_stmt[1], next_stmt[3]]:
+                        continue
+                expr_node = ast.Expr(node)
+                code.append(expr_node)
                 continue
             self.handle_statement(statement, var_d, code)
 
@@ -94,10 +100,14 @@ class TACConverter:
 
     def call_handler(self, statement, var_d, params):
         print('CALL')
+        num_params = statement[2]
+        call_params = params[-num_params:]
+        for _ in range(num_params): 
+            if params: params.pop()
         name = ast.Name(statement[3], ast.Load())
-        for i, p in enumerate(params):
-            params[i] = self.constant_handler(p, var_d)
-        return ast.Call(name, params, [])
+        for i, p in enumerate(call_params):
+            call_params[i] = self.constant_handler(p, var_d)
+        return ast.Call(name, call_params, [], lineno = self.lineno)
 
     def return_handler(self, statement, var_d):
         print('RETURN')
@@ -218,6 +228,7 @@ class TACConverter:
 
     def get_ast(self):
         body = self.convert()
+        print(body)
         return ast.Module(body, [])
 
 
