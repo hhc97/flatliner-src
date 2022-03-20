@@ -146,6 +146,15 @@ class ASTVisitor(ast.NodeVisitor):
         """ visit a Module node and the visits recursively"""
         return node.value
 
+    def visit_List(self, node):
+        """ visit a List node"""
+        var = self.fresh_variable()
+        self.addToTac(("START-LIST",None,None,var))
+        for element in node.elts:
+            self.addToTac(("PUSH-ELMT", None, None, self.visit(element)))
+        self.addToTac(("END-LIST",None,None,var))
+        return var
+
     def visit_If(self, node, end_segment=None):
         """ Visit an If node and the visits recursively"""
 
