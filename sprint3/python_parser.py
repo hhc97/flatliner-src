@@ -42,28 +42,6 @@ class PythonParser:
         printd("statements or empty")
         p[0] = p[1]
 
-    # def p_func_body(self, p):
-    #     """
-    #     func_body : func_body stmt_lst
-    #               | func_body return
-    #               | return stmt_lst
-    #               | stmt_lst return
-    #               | stmt_lst
-    #               | return
-
-    #     """
-    #     printd("function body")
-    #     printd(len(p))
-    #     if not isinstance(p[1], list):
-    #         p[1] = [p[1]]
-
-    #     if len(p) == 3:
-    #         if not isinstance(p[2], list):
-    #             p[2] = [p[2]]
-    #         p[0] = p[1] + p[2]
-    #     else:
-    #         p[0] = p[1]
-
     def p_statement_list(self, p):
         """
         stmt_lst : stmt_lst stmt
@@ -199,12 +177,25 @@ class PythonParser:
         """
         p[0] = p[2]
 
+    def p_method_call(self, p):
+        """
+        expr : expr DOT ID args
+        """
+        p[1] = ast.Attribute(p[1], p[3], ctx=ast.Load())
+        p[0] = ast.Call(p[1], p[4], [])
+    
     def p_func_call(self, p):
         """
         expr : ID args
         """
         p[1] = ast.Name(p[1], ast.Load())
         p[0] = ast.Call(p[1], p[2], [])
+    
+    def p_expr_lst(self, p):
+        """
+        expr : LBRACE args_or_empty RBRACE
+        """
+        p[0] = ast.List(p[2])
 
     def p_args(self, p):
         """
@@ -233,7 +224,7 @@ class PythonParser:
             p[0] = [p[1]]
         else:
             p[0] = p[1] + [p[3]]
-
+    
     def p_expr_boolop(self, p):
         """
         expr : expr OR expr
