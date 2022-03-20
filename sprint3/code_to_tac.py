@@ -122,11 +122,18 @@ class ASTVisitor(ast.NodeVisitor):
         self.addToTac(('DEFN', None, None, node.name))
         oldKey = self.key
         self.key = node.name
+
+        cur_end_segment  = None
         for arg in node.args.args:
             self.addToTac(("ADD-PARAM", None, None, arg.arg))
         for stmt in node.body:
-            self.visit(stmt, end_segment=self.key)
-            self.key = node.name
+            if type(stmt) in [ast.If, ast.While, ast.For]:
+                cur_end_segment = f'_L{self.getL()}'
+
+            self.visit(stmt, end_segment=cur_end_segment)
+
+            if type(stmt) in [ast.If, ast.While, ast.For]:
+                self.key = cur_end_segment
         self.key = oldKey
 
     def visit_Constant(self, node):
