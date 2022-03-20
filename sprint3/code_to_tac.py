@@ -117,6 +117,12 @@ class ASTVisitor(ast.NodeVisitor):
         """ visit a Function node """
         print(type(node).__name__)
 
+    def visit_Break(self, node):
+        self.addToTac(("BREAK", None, None, None))
+
+    def visit_Continue(self, node):
+        self.addToTac(("CONTINUE", None, None, None))
+
     def visit_FunctionDef(self, node):
         """ visit a Function node and visits it recursively"""
         self.addToTac(('DEFN', None, None, node.name))
