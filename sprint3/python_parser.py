@@ -62,6 +62,8 @@ class PythonParser:
              | func_defn
              | return
              | expr_stmt
+             | break
+             | continue
         """
         printd("statement")
         p[0] = p[1]
@@ -105,6 +107,20 @@ class PythonParser:
         """
         printd('return')
         p[0] = ast.Return(p[2])
+
+    def p_break_statement(self, p):
+        """
+        break : BREAK NEWLINE
+        """
+        printd('break')
+        p[0] = ast.Break()
+
+    def p_continue_statement(self, p):
+        """
+        continue : CONTINUE NEWLINE
+        """
+        printd('continue')
+        p[0] = ast.Continue()
 
     def p_elif(self, p):
         """
