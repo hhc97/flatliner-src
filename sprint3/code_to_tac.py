@@ -57,6 +57,7 @@ class ASTVisitor(ast.NodeVisitor):
             ast.Sub: '-',
             ast.Mult: '*',
             ast.Div: '/',
+            ast.Mod: '%'
         }
         left = self.visit(node.left)
         right = self.visit(node.right)
