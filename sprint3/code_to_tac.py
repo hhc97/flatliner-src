@@ -125,7 +125,8 @@ class ASTVisitor(ast.NodeVisitor):
         for arg in node.args.args:
             self.addToTac(("ADD-PARAM", None, None, arg.arg))
         for stmt in node.body:
-            self.visit(stmt)
+            self.visit(stmt, end_segment=self.key)
+            self.key = node.name
         self.key = oldKey
 
     def visit_Constant(self, node):
