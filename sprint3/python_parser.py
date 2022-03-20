@@ -9,7 +9,7 @@ from lexer import PythonLexer
 # Get the token map from the lexer. This is required.
 from lexer import tokens
 
-DEBUG = False
+DEBUG = True
 
 
 def printd(*args, **kwargs):
@@ -225,6 +225,14 @@ class PythonParser:
         else:
             p[0] = p[1] + [p[3]]
     
+    
+    def p_expr_index(self, p):
+        """
+        expr : expr LBRACE expr RBRACE
+             | expr LBRACE slice RBRACE
+        """
+        p[0] = ast.Subscript(p[1], p[3], ctx=ast.Load())
+
     def p_expr_boolop(self, p):
         """
         expr : expr OR expr
