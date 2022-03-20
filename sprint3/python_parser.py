@@ -229,7 +229,6 @@ class PythonParser:
     def p_expr_index(self, p):
         """
         expr : expr LBRACE expr RBRACE
-             | expr LBRACE slice RBRACE
         """
         p[0] = ast.Subscript(p[1], p[3], ctx=ast.Load())
 
