@@ -46,6 +46,16 @@ class TACConverter:
             if op == 'DEFN':
                 self.function_hander(statement, var_d.copy(), code)
                 continue
+            if op == 'START-LIST':
+                node, index = self.list_handler(statement, var_d, index, statements)
+                self.lineno += 1
+                if index < len(statements):
+                    next_stmt = statements[index]
+                    if var in next_stmt:
+                        continue
+                expr_node = ast.Expr(node)
+                code.append(expr_node)
+                continue
             if op == 'GOTO':
                 return code
             if op == 'PUSH-PARAM':
@@ -133,6 +143,7 @@ class TACConverter:
             '-': ast.Sub(),
             '*': ast.Mult(),
             '/': ast.Div(),
+            '%': ast.Mod()
         }
         left = self.constant_handler(left, var_d)
         right = self.constant_handler(right, var_d)
@@ -237,6 +248,23 @@ class TACConverter:
         param_lst = ast.arguments([], params, [], [], [], [], [])
         node = ast.FunctionDef(func_block, param_lst, func_code, decorator_list=[], lineno=self.lineno)
         outer_code.append(node)
+
+    def list_handler(self, statement, var_d, index, statements):
+        lst = []
+        lst_name = statement[3]
+        while index < len(statements):
+            statement = statements[index]
+            op, _, _,var = statement
+            index += 1
+            if op == 'END-LIST' and var == lst_name:
+                break
+            if op == 'START-LIST':
+                _, index = self.list_handler(statement, var_d, index, statements)
+            else:
+                element = self.constant_handler(var, var_d)
+                lst.append(element)
+        var_d[lst_name] = ast.List(lst)
+        return var_d[lst_name], index
 
     def get_ast(self):
         body = self.convert()
