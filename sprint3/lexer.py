@@ -17,6 +17,7 @@ reserved = {
     'or': 'OR',
     'break': 'BREAK',
     'continue': 'CONTINUE',
+    'assert': 'ASSERT',
     'and': 'AND',
     'def': 'DEF',
     'None': 'NONE',
