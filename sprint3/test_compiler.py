@@ -144,8 +144,8 @@ def test_unparse_files_multiple():
 
 
 def test_tac_conversion():
-    base = './code_examples'
-    ignored = ['advanced_types.py', 'everything_else.py', 'advanced_ifs_and_loops.py', 'loops_flow_control.py']
+    base = './tac_ast_examples'
+    ignored = ['advanced_types.py', 'everything_else.py', 'loops_flow_control.py']
     for file in os.listdir(base):
         if not any(file.endswith(ending) for ending in ignored):
             end_to_end(base + '/' + file)
