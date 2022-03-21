@@ -56,6 +56,40 @@ class TACConverter:
                 expr_node = ast.Expr(node)
                 code.append(expr_node)
                 continue
+            if op == 'SLICE':
+                temp_var = var
+                lst = self.constant_handler(statement[1], var_d)
+                _, start, stop, _ = statements[index] # next line
+                start = self.constant_handler(start, var_d) if start else start
+                stop = self.constant_handler(stop, var_d) if stop else stop
+                slice_node = ast.Slice(lower = start,  upper=stop)
+                node = ast.Subscript(lst, slice_node, ctx=ast.Load())
+                var_d[temp_var] = node
+                self.lineno += 1
+                index += 1
+                if index < len(statements):
+                    next_stmt = statements[index]
+                    if temp_var in next_stmt:
+                        continue
+                expr_node = ast.Expr(node)
+                code.append(expr_node)
+                continue
+            if op == 'INDEX':
+                temp_var = var
+                lst = self.constant_handler(statement[1], var_d)
+                index_num = statements[index][2] # next line
+                index_node = self.constant_handler(index_num, var_d)
+                node = ast.Subscript(lst, index_node, ctx=ast.Load())
+                var_d[temp_var] = node
+                self.lineno += 1
+                index += 1
+                if index < len(statements):
+                    next_stmt = statements[index]
+                    if temp_var in next_stmt:
+                        continue
+                expr_node = ast.Expr(node)
+                code.append(expr_node)
+                continue
             if op == 'GOTO':
                 return code
             if op == 'PUSH-PARAM':
@@ -65,6 +99,7 @@ class TACConverter:
                 node = self.call_handler(statement, var_d, params)
                 self.lineno += 1
                 var_d['ret'] = node
+                var = 'ret'
                 if index < len(statements):
                     next_stmt = statements[index]
                     if 'ret' in next_stmt:
