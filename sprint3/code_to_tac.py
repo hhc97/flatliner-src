@@ -14,7 +14,7 @@ class ASTVisitor(ast.NodeVisitor):
     #             self.visit(child)
     #     return wrapper
 
-    def __init__(self):
+    def __init__(self, use_smallest_name = False):
         super().__init__()
         self.tac = {"main": []}
         self.key = "main"
@@ -22,6 +22,9 @@ class ASTVisitor(ast.NodeVisitor):
         self.exitL = None
         self.previousL = []  # anytime we go into a scope, add to this and
         self.var_count = 0
+        self.mapping = {}
+        self.use_smallest_name = use_smallest_name
+
 
     def fresh_variable(self):
         var = f't_{self.var_count}'
@@ -224,13 +227,15 @@ class ASTVisitor(ast.NodeVisitor):
         self.addToTac(("SLICE",lower,upper,step))
 
     def visit_Subscript(self, node):
+        var = self.visit(node.value)
+        temp = self.fresh_variable()
         if type(node.slice) == ast.Slice:
-            self.addToTac(('SLICE',None,None,self.visit(node.value)))
+            self.addToTac(('SLICE',var,None,temp))
             self.visit(node.slice)
         else:
-            self.addToTac(('INDEX',None,None,self.visit(node.value)))
-            var = self.visit(node.slice)
-            self.addToTac(("INDEX", var, None, None))
+            self.addToTac(('INDEX',var,None,temp))
+            self.addToTac(("INDEX", var, self.visit(node.slice), None))
+        return temp
 
     def visit_For(self, node, end_segment=None):
         identifier = self.visit(node.target)
