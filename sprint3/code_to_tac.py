@@ -216,6 +216,22 @@ class ASTVisitor(ast.NodeVisitor):
         self.key = f'_L{new_L}' 
         self.addToTac(("GOTO", None, None, end_segment))
 
+    def visit_Slice(self, node):
+        lower = self.visit(node.lower) if node.lower else None 
+        upper = self.visit(node.upper) if node.upper else None 
+        step = self.visit(node.step) if node.step else None  
+
+        self.addToTac(("SLICE",lower,upper,step))
+
+    def visit_Subscript(self, node):
+        if type(node.slice) == ast.Slice:
+            self.addToTac(('SLICE',None,None,self.visit(node.value)))
+            self.visit(node.slice)
+        else:
+            self.addToTac(('INDEX',None,None,self.visit(node.value)))
+            var = self.visit(node.slice)
+            self.addToTac(("INDEX", var, None, None))
+
     def visit_For(self, node, end_segment=None):
         identifier = self.visit(node.target)
         iterates = self.visit(node.iter)
@@ -283,6 +299,7 @@ class ASTVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node):
         print('here')
+        print(node)
         pass
 
 
