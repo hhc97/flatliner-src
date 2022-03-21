@@ -57,6 +57,7 @@ class ASTVisitor(ast.NodeVisitor):
             ast.Sub: '-',
             ast.Mult: '*',
             ast.Div: '/',
+            ast.Mod: '%'
         }
         left = self.visit(node.left)
         right = self.visit(node.right)
@@ -198,13 +199,10 @@ class ASTVisitor(ast.NodeVisitor):
         new_L = self.getL()
         self.addToTac(("WHILE", tempVar, None, f'_L{new_L}'))
         self.addToTac(("GOTO", None, None, end_segment))
+        self.key = f'_L{new_L}'
 
-        cur_end_segment = f'_L{new_L}'
         for expr in node.body[0]:
-            self.key = cur_end_segment
-            if type(expr) in [ast.If, ast.While, ast.For]:
-                cur_end_segment = f'_L{self.getL()}'
-            self.visit(expr, end_segment=cur_end_segment)
+            self.visit(expr, end_segment=end_segment)
         # tempVar = self.visit(node.test, end_segment=end_segment)
         # self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
         self.addToTac(("GOTO", None, None, end_segment))
@@ -218,9 +216,17 @@ class ASTVisitor(ast.NodeVisitor):
         self.addToTac(("GOTO", None, None, end_segment))
         self.key = f'_L{jumpL}'
 
-        for body in node.body:
-            self.visit(body, end_segment=end_segment)
-
+        i = 0
+        while i < len(node.body):
+            body = node.body[i]
+            if type(body) in [ast.For,ast.If,ast.While] and i < len(node.body) - 1:
+                new_segment = f'_L{self.getL()}'
+                self.visit(body, end_segment=new_segment)
+                self.key = new_segment
+            else:
+                self.visit(body,end_segment=end_segment)
+            i += 1
+        self.key = f'_L{jumpL}'          
         self.addToTac(("GOTO", None, None, end_segment))
 
     def visit_Return(self, node):
