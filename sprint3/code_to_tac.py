@@ -280,7 +280,9 @@ class ASTVisitor(ast.NodeVisitor):
             self.addToTac(("CALL",objectName, len(node.args), methodName))
         else:
             self.addToTac(("CALL", None, len(node.args), self.visit(node.func)))
-        return 'ret'
+
+        temp = self.fresh_variable()
+        return f'ret_{temp}'
 
     def visit_Expr(self, node):
         return self.visit(node.value)
