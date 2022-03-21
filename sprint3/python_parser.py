@@ -64,6 +64,7 @@ class PythonParser:
              | expr_stmt
              | break
              | continue
+             | assert
         """
         printd("statement")
         p[0] = p[1]
@@ -108,6 +109,15 @@ class PythonParser:
         printd('return')
         p[0] = ast.Return(p[2])
 
+    def p_assert_statement(self, p):
+        """
+        assert : ASSERT expr NEWLINE
+               | ASSERT expr COMMA expr NEWLINE
+        """
+        if len(p) == 4:
+            p[0] = ast.Assert(p[2])
+        else:
+            p[0] = ast.Assert(p[2], p[4])
     def p_break_statement(self, p):
         """
         break : BREAK NEWLINE
