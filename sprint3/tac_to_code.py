@@ -155,7 +155,12 @@ class TACConverter:
         call_params = params[-num_params:]
         for _ in range(num_params): 
             if params: params.pop()
-        name = ast.Name(statement[3], ast.Load())
+        # method call
+        if statement[1]:
+            obj = self.constant_handler(statement[1], var_d)
+            name = ast.Attribute(obj, statement[3], ast.Load())
+        else:
+            name = ast.Name(statement[3], ast.Load())
         for i, p in enumerate(call_params):
             call_params[i] = self.constant_handler(p, var_d)
         return ast.Call(name, call_params, [], lineno = self.lineno)
