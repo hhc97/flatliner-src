@@ -76,6 +76,7 @@ class TACConverter:
 
         return code
 
+
     def handle_statement(self, statement, var_d, code):
         op, var = statement[0], statement[3]
         handlers = {'+': self.binary_handler, '-': self.binary_handler, '*': self.binary_handler,
@@ -258,11 +259,21 @@ class TACConverter:
             index += 1
             if op == 'END-LIST' and var == lst_name:
                 break
+            # nested list
             if op == 'START-LIST':
                 _, index = self.list_handler(statement, var_d, index, statements)
-            else:
+            
+            elif op == 'PUSH-ELMT':
                 element = self.constant_handler(var, var_d)
                 lst.append(element)
+            else:
+                next_index = index 
+                while statements[next_index][0] != 'PUSH-ELMT' and \
+                    not (statements[next_index][0] == ['END-LIST'] and \
+                        statements[next_index][3] == lst_name): 
+                    next_index += 1
+                self.convert(statements[index-1:next_index], var_d)
+                index = next_index
         var_d[lst_name] = ast.List(lst)
         return var_d[lst_name], index
 
