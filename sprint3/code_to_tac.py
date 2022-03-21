@@ -242,6 +242,13 @@ class ASTVisitor(ast.NodeVisitor):
         tempVar = self.visit(node.value)
         self.addToTac(("RETURN", None, None, tempVar))
 
+    def visit_Assert(self, node):
+        var1 = self.visit(node.test)
+        var2 = None 
+        if (node.msg):
+            var2 = self.visit(node.msg)
+        self.addToTac(("ASSERT", None, var2, var1))
+
     def visit_Call(self, node):
         for arg in node.args:
             tempVar = self.visit(arg)
