@@ -251,16 +251,20 @@ class TACConverter:
 
     def list_handler(self, statement, var_d, index, statements):
         lst = []
+        lst_name = statement[3]
         while index < len(statements):
-            if statements[index][0] != 'PUSH-ELMT':
-                index += 1
-                break
-            element = self.constant_handler(statements[index][3], var_d)
-            lst.append(element)
+            statement = statements[index]
+            op, _, _,var = statement
             index += 1
-        var = statement[3]
-        var_d[var] = ast.List(lst)
-        return var_d[var], index
+            if op == 'END-LIST' and var == lst_name:
+                break
+            if op == 'START-LIST':
+                _, index = self.list_handler(statement, var_d, index, statements)
+            else:
+                element = self.constant_handler(var, var_d)
+                lst.append(element)
+        var_d[lst_name] = ast.List(lst)
+        return var_d[lst_name], index
 
     def get_ast(self):
         body = self.convert()
