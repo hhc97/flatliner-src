@@ -201,10 +201,19 @@ class ASTVisitor(ast.NodeVisitor):
         self.addToTac(("GOTO", None, None, end_segment))
         self.key = f'_L{new_L}'
 
-        for expr in node.body[0]:
-            self.visit(expr, end_segment=end_segment)
+        i = 0
+        while i < len(node.body[0]):
+            expr = node.body[0][i]
+            if type(expr) in [ast.For,ast.If,ast.While] and i < len(node.body[0]) - 1:
+                new_segment = f'_L{self.getL()}'
+                self.visit(expr, end_segment=new_segment)
+                self.key = new_segment
+            else:
+                self.visit(expr,end_segment=end_segment)
+            i += 1
         # tempVar = self.visit(node.test, end_segment=end_segment)
         # self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
+        self.key = f'_L{new_L}' 
         self.addToTac(("GOTO", None, None, end_segment))
 
     def visit_For(self, node, end_segment=None):
