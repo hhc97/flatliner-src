@@ -1,0 +1,4 @@
+test-job:
+  stage: test
+  script:
+    - cd sprint3 && make test
