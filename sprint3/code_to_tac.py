@@ -180,7 +180,7 @@ class ASTVisitor(ast.NodeVisitor):
             for val in curNode:
                 self.visit(val)
 
-        self.addToTac(('GOTO-1', None, None, end_segment if go_to_end_segment else None))
+        self.addToTac(('GOTO', None, None, end_segment if go_to_end_segment else None))
 
         # visit each if else block
         keys = []
@@ -196,7 +196,7 @@ class ASTVisitor(ast.NodeVisitor):
         
         if go_to_end_segment:
             for key in keys:
-                self.tac[key].append(('GOTO-2', None, None, end_segment))
+                self.tac[key].append(('GOTO', None, None, end_segment))
 
     def visit_While(self, node, end_segment=None, go_to_end_segment = True):
         tempVar = self.visit(node.test)
@@ -221,7 +221,7 @@ class ASTVisitor(ast.NodeVisitor):
         # self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
         self.key = f'_L{new_L}' 
         if go_to_end_segment:
-            self.addToTac(("GOTO-4", None, None, end_segment))
+            self.addToTac(("GOTO", None, None, end_segment))
 
     def visit_Slice(self, node):
         lower = self.visit(node.lower) if node.lower else None 
@@ -262,7 +262,7 @@ class ASTVisitor(ast.NodeVisitor):
             i += 1
         self.key = f'_L{jumpL}'       
         if go_to_end_segment:   
-            self.addToTac(("GOTO-6", None, None, end_segment))
+            self.addToTac(("GOTO", None, None, end_segment))
 
     def visit_Return(self, node):
         tempVar = self.visit(node.value)
