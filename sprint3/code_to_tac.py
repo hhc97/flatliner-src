@@ -159,9 +159,8 @@ class ASTVisitor(ast.NodeVisitor):
         self.addToTac(("END-LIST",None,None,var))
         return var
 
-    def visit_If(self, node, end_segment=None):
+    def visit_If(self, node, end_segment=None, go_to_end_segment = True):
         """ Visit an If node and the visits recursively"""
-
         # two paths to consider, if it satisfies or if it doesnt
         curNode = node
         ifStatements = []
@@ -180,7 +179,8 @@ class ASTVisitor(ast.NodeVisitor):
         if curNode != None:
             for val in curNode:
                 self.visit(val)
-        self.addToTac(('GOTO', None, None, end_segment))
+
+        self.addToTac(('GOTO-1', None, None, end_segment if go_to_end_segment else None))
 
         # visit each if else block
         keys = []
@@ -190,18 +190,20 @@ class ASTVisitor(ast.NodeVisitor):
             for body in ifStmt.body:
                 for element in body:
                     self.key = f'_L{L}'
-                    self.visit(element, end_segment=end_segment)
+                    self.visit(element, end_segment=end_segment, go_to_end_segment = go_to_end_segment)
             self.key = f'_L{L}'
             keys.append(f'_L{L}')
-        for key in keys:
-            self.tac[key].append(('GOTO', None, None, end_segment))
+        
+        if go_to_end_segment:
+            for key in keys:
+                self.tac[key].append(('GOTO-2', None, None, end_segment))
 
-    def visit_While(self, node, end_segment=None):
+    def visit_While(self, node, end_segment=None, go_to_end_segment = True):
         tempVar = self.visit(node.test)
 
         new_L = self.getL()
         self.addToTac(("WHILE", tempVar, None, f'_L{new_L}'))
-        self.addToTac(("GOTO", None, None, end_segment))
+        #self.addToTac(("GOTO-3", None, None, end_segment if go_to_end_segment else None))
         self.key = f'_L{new_L}'
 
         i = 0
@@ -209,15 +211,17 @@ class ASTVisitor(ast.NodeVisitor):
             expr = node.body[0][i]
             if type(expr) in [ast.For,ast.If,ast.While] and i < len(node.body[0]) - 1:
                 new_segment = f'_L{self.getL()}'
-                self.visit(expr, end_segment=new_segment)
+
+                self.visit(expr, end_segment=(new_segment if go_to_end_segment else None), go_to_end_segment = False)
                 self.key = new_segment
             else:
-                self.visit(expr,end_segment=end_segment)
+                self.visit(expr,end_segment=(end_segment if go_to_end_segment else None), go_to_end_segment = False)
             i += 1
         # tempVar = self.visit(node.test, end_segment=end_segment)
         # self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
         self.key = f'_L{new_L}' 
-        self.addToTac(("GOTO", None, None, end_segment))
+        if go_to_end_segment:
+            self.addToTac(("GOTO-4", None, None, end_segment))
 
     def visit_Slice(self, node):
         lower = self.visit(node.lower) if node.lower else None 
@@ -237,13 +241,13 @@ class ASTVisitor(ast.NodeVisitor):
             self.addToTac(("INDEX", var, self.visit(node.slice), None))
         return temp
 
-    def visit_For(self, node, end_segment=None):
+    def visit_For(self, node, end_segment=None, go_to_end_segment = True):
         identifier = self.visit(node.target)
         iterates = self.visit(node.iter)
 
         jumpL = self.getL()
         self.addToTac(('FOR', identifier, iterates, f'_L{jumpL}'))
-        self.addToTac(("GOTO", None, None, end_segment))
+        #self.addToTac(("GOTO-5", None, None, end_segment))
         self.key = f'_L{jumpL}'
 
         i = 0
@@ -251,13 +255,14 @@ class ASTVisitor(ast.NodeVisitor):
             body = node.body[i]
             if type(body) in [ast.For,ast.If,ast.While] and i < len(node.body) - 1:
                 new_segment = f'_L{self.getL()}'
-                self.visit(body, end_segment=new_segment)
+                self.visit(body, end_segment=new_segment if go_to_end_segment else None, go_to_end_segment = False)
                 self.key = new_segment
             else:
-                self.visit(body,end_segment=end_segment)
+                self.visit(body,end_segment=end_segment if go_to_end_segment else None, go_to_end_segment = False)
             i += 1
-        self.key = f'_L{jumpL}'          
-        self.addToTac(("GOTO", None, None, end_segment))
+        self.key = f'_L{jumpL}'       
+        if go_to_end_segment:   
+            self.addToTac(("GOTO-6", None, None, end_segment))
 
     def visit_Return(self, node):
         tempVar = self.visit(node.value)
@@ -287,25 +292,25 @@ class ASTVisitor(ast.NodeVisitor):
     def visit_Expr(self, node):
         return self.visit(node.value)
 
-    def visit_Module(self, node):
+    def visit_Module(self, node, go_to_end_segment = True):
         """ visit a Module node and the visits recursively"""
         for child in ast.iter_child_nodes(node):
             if type(child) in [ast.If, ast.While, ast.For]:
                 # New flows added
                 end_segment = f'_L{self.getL()}'
-                self.visit(child, end_segment=end_segment)
+                self.visit(child, end_segment=end_segment,go_to_end_segment = go_to_end_segment)
                 self.key = end_segment
             else:
                 self.visit(child)
 
-    def visit(self, node, end_segment=None):
+    def visit(self, node, end_segment=None, go_to_end_segment = True):
         op_map = {
             ast.If: self.visit_If,
             ast.While: self.visit_While,
             ast.For: self.visit_For
         }
         if end_segment and type(node) in op_map:
-            return op_map[type(node)](node, end_segment=end_segment)
+            return op_map[type(node)](node, end_segment=end_segment, go_to_end_segment = go_to_end_segment)
         else:
             return super().visit(node)
 
