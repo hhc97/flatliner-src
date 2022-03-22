@@ -98,11 +98,12 @@ class TACConverter:
             if op == 'CALL':
                 node = self.call_handler(statement, var_d, params)
                 self.lineno += 1
-                var_d['ret'] = node
-                var = 'ret'
+                temp_var = statements[index][3]
+                var_d[temp_var] = node
+                index += 1
                 if index < len(statements):
                     next_stmt = statements[index]
-                    if 'ret' in next_stmt:
+                    if temp_var in next_stmt:
                         continue
                 expr_node = ast.Expr(node)
                 code.append(expr_node)
