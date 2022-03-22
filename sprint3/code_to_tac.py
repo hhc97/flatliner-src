@@ -212,7 +212,7 @@ class ASTVisitor(ast.NodeVisitor):
             if type(expr) in [ast.For,ast.If,ast.While] and i < len(node.body[0]) - 1:
                 new_segment = f'_L{self.getL()}'
 
-                self.visit(expr, end_segment=(new_segment if go_to_end_segment else None), go_to_end_segment = False)
+                self.visit(expr, end_segment=(new_segment if go_to_end_segment else None), go_to_end_segment = True)
                 self.key = new_segment
             else:
                 self.visit(expr,end_segment=(end_segment if go_to_end_segment else None), go_to_end_segment = False)
@@ -255,7 +255,7 @@ class ASTVisitor(ast.NodeVisitor):
             body = node.body[i]
             if type(body) in [ast.For,ast.If,ast.While] and i < len(node.body) - 1:
                 new_segment = f'_L{self.getL()}'
-                self.visit(body, end_segment=new_segment if go_to_end_segment else None, go_to_end_segment = False)
+                self.visit(body, end_segment=new_segment if go_to_end_segment else None, go_to_end_segment = True)
                 self.key = new_segment
             else:
                 self.visit(body,end_segment=end_segment if go_to_end_segment else None, go_to_end_segment = False)
