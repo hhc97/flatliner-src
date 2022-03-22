@@ -194,7 +194,7 @@ class ASTVisitor(ast.NodeVisitor):
             self.key = f'_L{L}'
             keys.append(f'_L{L}')
         
-        if go_to_end_segment:
+        if go_to_end_segment and end_segment:
             for key in keys:
                 self.tac[key].append(('GOTO', None, None, end_segment))
 
@@ -220,7 +220,7 @@ class ASTVisitor(ast.NodeVisitor):
         # tempVar = self.visit(node.test, end_segment=end_segment)
         # self.addToTac(("IFZ",tempVar,None, f'_L{new_L}'))
         self.key = f'_L{new_L}' 
-        if go_to_end_segment:
+        if go_to_end_segment and end_segment:
             self.addToTac(("GOTO", None, None, end_segment))
 
     def visit_Slice(self, node):
