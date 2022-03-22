@@ -246,7 +246,8 @@ class TACConverter:
             else_block = else_block[:1]
 
         outer_code.append(ast.If(cond, body, else_block))
-        goto_block = self.tac[if_block][-1][3]
+        goto_block = self.tac[if_block][-1]
+        goto_block = goto_block[3] if goto_block[0] == 'GOTO' else None
         # add goto code to outer code
         outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
 
@@ -257,7 +258,8 @@ class TACConverter:
         body = self.convert(self.tac[block], var_d.copy())
 
         outer_code.append(ast.While(cond, body, []))
-        goto_block = self.tac[block][-1][3]
+        goto_block = self.tac[block][-1]
+        goto_block = goto_block[3] if goto_block[0] == 'GOTO' else None
         # add goto code to outer code
         outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
 
@@ -269,7 +271,8 @@ class TACConverter:
         var = ast.Name(var, ast.Store())
         body = self.convert(self.tac[block], var_d.copy())
         outer_code.append(ast.For(var, iterator, body, [], lineno=self.lineno))
-        goto_block = self.tac[block][-1][3]
+        goto_block = self.tac[block][-1]
+        goto_block = goto_block[3] if goto_block[0] == 'GOTO' else None
         # add goto code to outer code
         outer_code.extend(self.convert(self.tac.get(goto_block, []), var_d))
 
