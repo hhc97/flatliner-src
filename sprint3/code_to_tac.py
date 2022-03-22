@@ -276,6 +276,7 @@ class ASTVisitor(ast.NodeVisitor):
         self.addToTac(("ASSERT", None, var2, var1))
 
     def visit_Call(self, node):
+        temp = self.fresh_variable()
         for arg in node.args:
             tempVar = self.visit(arg)
             self.addToTac(("PUSH-PARAM", None, None, tempVar))
@@ -286,8 +287,8 @@ class ASTVisitor(ast.NodeVisitor):
         else:
             self.addToTac(("CALL", None, len(node.args), self.visit(node.func)))
 
-        temp = self.fresh_variable()
-        return f'ret_{temp}'
+        self.addToTac(("=",None, "ret", temp))
+        return temp
 
     def visit_Expr(self, node):
         return self.visit(node.value)
