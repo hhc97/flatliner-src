@@ -145,7 +145,7 @@ def test_unparse_files_multiple():
 
 def test_tac_conversion():
     base = './tac_ast_examples'
-    ignored = ['advanced_types.py', 'everything_else.py', 'loops_flow_control.py']
+    ignored = ['everything_else.py']
     for file in os.listdir(base):
         if not any(file.endswith(ending) for ending in ignored):
             end_to_end(base + '/' + file)
@@ -172,6 +172,7 @@ def run_tests() -> None:
         print(f'Total {len(passed) + len(failed)} tests, failed {len(failed)}:')
         for test in failed:
             print(test)
+        exit(1)
 
 
 if __name__ == '__main__':
