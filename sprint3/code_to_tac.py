@@ -178,9 +178,10 @@ class ASTVisitor(ast.NodeVisitor):
 
         if curNode != None:
             for val in curNode:
-                self.visit(val)
+                self.visit(val, end_segment=end_segment if go_to_end_segment else None, go_to_end_segment=False)
 
-        self.addToTac(('GOTO', None, None, end_segment if go_to_end_segment else None))
+        if go_to_end_segment and end_segment:
+            self.addToTac(('GOTO', None, None, end_segment if go_to_end_segment else None))
 
         # visit each if else block
         keys = []
@@ -188,14 +189,22 @@ class ASTVisitor(ast.NodeVisitor):
         for ifStmt, L in ifStatements:
             self.key = f'_L{L}'
             for body in ifStmt.body:
-                for element in body:
-                    self.key = f'_L{L}'
-                    self.visit(element, end_segment=end_segment, go_to_end_segment = go_to_end_segment)
+                i = 0
+                self.key = f'_L{L}'
+                while i < len(body):
+                    element = body[i]
+                    if type(element) in [ast.For,ast.If,ast.While] and i < len(body) - 1:
+                        new_segment = f'_L{self.getL()}'
+                        self.visit(element, end_segment=(new_segment if go_to_end_segment else None), go_to_end_segment = go_to_end_segment)
+                        self.key = new_segment
+                    else:
+                        self.visit(element,end_segment=(end_segment if go_to_end_segment else None), go_to_end_segment = False)
+                    i += 1
             self.key = f'_L{L}'
             keys.append(f'_L{L}')
         
         if go_to_end_segment and end_segment:
-            for key in keys:
+            for key in keys[:-1]:
                 self.tac[key].append(('GOTO', None, None, end_segment))
 
     def visit_While(self, node, end_segment=None, go_to_end_segment = True):
