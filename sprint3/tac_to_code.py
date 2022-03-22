@@ -227,15 +227,17 @@ class TACConverter:
         cond = self.constant_handler(statement[1], var_d)
         if_block = statement[3]
         index = 0
+        temp_variable_loader = []
         while index < len(else_block):
             statement = else_block[index]
             op, var = statement[0], statement[3]
             if var and var.startswith(TEMP):
                 # need to load temp variables
-                self.handle_statement(statement, var_d, [])
+                temp_variable_loader.append(statement)
             else:
                 break
             index += 1
+        self.convert(temp_variable_loader, var_d)
         body = self.convert(self.tac[if_block], var_d.copy())
         else_block = self.convert(else_block[index:], var_d.copy())
 
