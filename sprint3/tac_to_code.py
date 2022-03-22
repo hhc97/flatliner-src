@@ -2,6 +2,7 @@ import ast
 
 from code_to_tac import ASTVisitor
 from python_parser import PythonParser
+import argparse
 
 code = []
 START = 'main'
@@ -329,8 +330,17 @@ class TACConverter:
 
 
 if __name__ == '__main__':
+    argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')
+    argparser.add_argument('--FILE', help='Input file with python source code', required=False)
+    args = argparser.parse_args()
+    file = 'test_input.py'
+    if args.FILE:
+        file = args.FILE
+    
+
+
     visitor = ASTVisitor()
-    infile = open('test_input.py')
+    infile = open(file)
     parser = PythonParser()
     parser.build()
     tree = parser.get_ast(infile.read())
