@@ -40,8 +40,6 @@ while a < 15:
                     if b - a > 3:
                         print('b while break')
                         break
-                print(b, 'b for break')
-                break
     if a < 13:
         print(a, 'a continue')
         continue
