@@ -1,22 +1,24 @@
 Name: Ritvik Bhardwaj
 Student Number: 1004042537
 Group Members: Haocheng Hu, Naaz Sibia, Ritvik Bhardwaj
-Sprint: X
+Sprint: 3
 
 Contributions:
- Ritvik Bhardwaj (x%)
-    - 
-    - 
-    - 
+ Ritvik Bhardwaj (33%)
+    - Add Lexer improvements
+    - Worked on initial implementation for code shortener
+    - Add control flow and extra details to the TAC
 
 
- Haocheng Hu (x%)
-    - 
-    - 
-    - 
+ Haocheng Hu (33%)
+    - Worked more on the one linerizer
+    - Implemented testing suite imporvements and CI/CD
 
 
- Naaz Sibia (x%)
-    - 
-    - 
-    - 
+ Naaz Sibia (33%)
+    - Worked on TAC to code improvements
+    - Created sprint document
+    - Guided team through
+
+ Patrick, Kit, Robin (1%)
+  - Great talks, quite enjoyable
