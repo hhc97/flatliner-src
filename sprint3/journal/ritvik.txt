@@ -13,12 +13,13 @@ Contributions:
  Haocheng Hu (33%)
     - Worked more on the one linerizer
     - Implemented testing suite imporvements and CI/CD
+    - Cheered us on the sidelines
 
 
  Naaz Sibia (33%)
     - Worked on TAC to code improvements
     - Created sprint document
-    - Guided team through
+    - Guided team through improvements and changes needed to complete sprint
 
  Patrick, Kit, Robin (1%)
   - Great talks, quite enjoyable
