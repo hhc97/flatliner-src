@@ -232,7 +232,7 @@ class TACConverter:
         while index < len(else_block):
             statement = else_block[index]
             op, var = statement[0], statement[3]
-            if var and var.startswith(TEMP):
+            if var and var.startswith(TEMP) and op != 'PUSH-PARAM':
                 # need to load temp variables
                 temp_variable_loader.append(statement)
             else:
