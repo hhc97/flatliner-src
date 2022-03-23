@@ -1,22 +1,25 @@
 Name: Haocheng Hu
 Student Number: 1005290855
 Group Members: Haocheng Hu, Naaz Sibia, Ritvik Bhardwaj
-Sprint: X
+Sprint: 3
 
 Contributions:
- Haocheng Hu (x%)
-    - 
-    - 
-    - 
+ Haocheng Hu (33%)
+    - added more support to our target generator, like assertions, break and continue in loops.
+    - updated testing framework to include end-to-end tests and a CI pipeline.
+    - continued to maintain our website by adding features as they are implemented and improving the backend.
+    - wrote relevant sections of the sprint pdf.
 
 
- Naaz Sibia (x%)
-    - 
-    - 
-    - 
+ Naaz Sibia (33%)
+    - Added support for lists, method calls, slicing and indexing to the parser. Along with fixing issues along the way.
+    - Worked with Ritvik to fix multiple issues as they came up during development.
+    - Worked with Ritvik to add full support in the backend for going to our TAC representation and back.
+    - wrote relevant sections of the sprint pdf.
 
 
- Ritvik Bhardwaj (x%)
-    - 
-    - 
-    - 
+ Ritvik Bhardwaj (33%)
+    - Added support for lists, method calls, slicing and indexing to the lexer. Along with fixing issues along the way.
+    - Worked with Naaz to fix multiple issues as they came up during development.
+    - Worked with Naaz to add full support in the backend for going to our TAC representation and back.
+    - wrote relevant sections of the sprint pdf.
