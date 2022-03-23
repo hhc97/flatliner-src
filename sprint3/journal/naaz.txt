@@ -1,22 +1,31 @@
 Name: Naaz Sibia
 Student Number: 1004432321
 Group Members: Haocheng Hu, Naaz Sibia, Ritvik Bhardwaj
-Sprint: X
+Sprint: 3
 
 Contributions:
- Naaz Sibia (x%)
-    - 
-    - 
-    - 
+ Naaz Sibia (33%)
+    - Added support for lists, method calls, slicing and indexing to the parser.
+    - Worked with Ritvik on designing the IR for lists, method calls, indexing and slicing.
+    - Worked on the script to read lists in IR and convert them back to an AST. This was tricky... because you can have all kinds of things going    on   inside a list... as I found. Nested lists terrify me.
+    - Worked on fixing scoping issues with Ritvik -- as he changed the IR to deal with issues, I had to change my IR to AST converter.
+    - Worked on documenting work on lists, and diagnosing IR issues as we ran tests.
+    - Also added support for break and continue to the parser and IR-AST converter.
+
+ Ritvik Bhardwaj (33%)
+    - Added support for lists, method calls, slicing, indexing, break and continue to the lexer.
+    - Worked with Naaz to design IR for lists, method calls, indexing and slicing.
+    - Had to deal with a lot of difficulties for IR and scoping. We were running into issues where the IR didn't represent the remaining code to execute in a block correctly, and Ritvik had to fix that.
+    - Diagnosed IR issues with tests, and documented work on scoping.
+    - Worked on handling temporary variables with function calls.
 
 
- Ritvik Bhardwaj (x%)
-    - 
-    - 
-    - 
+ Haocheng Hu (33%)
+    - Worked on the backend -- converting AST to one line Python code. Added support for asserts, break/continue (and a lot of stuff that I can't even remember anymore)
+    - Added CI/CD support - so that Ritvik and I can suffer everytime we push code and fail his tests.
+    - Shared our compiler project with Profs and students to get quotes for our presentation.
+    - Started working on ideas for presentation.
+    - Gave Ritvik and me moral support.
+    - Shared a picture of his cat.
 
-
- Haocheng Hu (x%)
-    - 
-    - 
-    - 
+(in case you're wondering who gets the remaining 1% -- you, the reader, can take it.)
