@@ -179,15 +179,17 @@ class ASTVisitor(ast.NodeVisitor):
         if curNode != None:
             for val in curNode:
                 self.visit(val, end_segment=end_segment if go_to_end_segment else None, go_to_end_segment=False)
-
         if go_to_end_segment and end_segment:
             self.addToTac(('GOTO', None, None, end_segment if go_to_end_segment else None))
 
         # visit each if else block
         keys = []
 
-        for ifStmt, L in ifStatements:
+        j = 0
+        while j < len(ifStatements):
+            ifStmt, L = ifStatements[j]
             self.key = f'_L{L}'
+            print(j,ifStmt.body)
             for body in ifStmt.body:
                 i = 0
                 self.key = f'_L{L}'
@@ -197,15 +199,22 @@ class ASTVisitor(ast.NodeVisitor):
                         new_segment = f'_L{self.getL()}'
                         self.visit(element, end_segment=(new_segment if go_to_end_segment else None), go_to_end_segment = go_to_end_segment)
                         self.key = new_segment
+                        if go_to_end_segment and end_segment:
+                            if f'_L{L}' not in keys:
+                                keys.append(f'_L{L}')
                     else:
-                        self.visit(element,end_segment=(end_segment if go_to_end_segment else None), go_to_end_segment = False)
+                        #print("HERE", body, end_segment, go_to_end_segment and not i >= len(body) - 1 and not j >= len(ifStatements))
+                        self.visit(element,end_segment=(end_segment if go_to_end_segment else None), go_to_end_segment = (go_to_end_segment or i < len(body) - 1))
+                        if (go_to_end_segment or j < len(ifStatements) - 1) and end_segment:
+                            if f'_L{L}' not in keys:
+                                keys.append(f'_L{L}')
                     i += 1
+            j += 1
             self.key = f'_L{L}'
-            keys.append(f'_L{L}')
-        
-        if go_to_end_segment and end_segment:
-            for key in keys[:-1]:
-                self.tac[key].append(('GOTO', None, None, end_segment))
+            #keys.append(f'_L{L}')
+            for key in keys:
+                self.tac[key].append(("GOTO",None,None,end_segment))
+
 
     def visit_While(self, node, end_segment=None, go_to_end_segment = True):
         tempVar = self.visit(node.test)
@@ -267,7 +276,7 @@ class ASTVisitor(ast.NodeVisitor):
                 self.visit(body, end_segment=new_segment if go_to_end_segment else None, go_to_end_segment = True)
                 self.key = new_segment
             else:
-                self.visit(body,end_segment=end_segment if go_to_end_segment else None, go_to_end_segment = False)
+                self.visit(body,end_segment=(end_segment if go_to_end_segment else None), go_to_end_segment = False)
             i += 1
         self.key = f'_L{jumpL}'       
         if go_to_end_segment:   
