@@ -159,7 +159,7 @@ class PythonParser:
         expr_stmt : expr NEWLINE
         """
         p[0] = ast.Expr(p[1])
-    
+
     ################################
     ## Expressions
     ################################
@@ -199,7 +199,7 @@ class PythonParser:
         """
         p[1] = ast.Name(p[1], ast.Load())
         p[0] = ast.Call(p[1], p[2], [])
-    
+
     def p_args(self, p):
         """
         args : LPAREN args_or_empty RPAREN
@@ -207,7 +207,6 @@ class PythonParser:
         printd("args", p)
         p[0] = p[2] if p[2] else []
 
-    
     def p_args_or_empty(self, p):
         """
         args_or_empty : arg_lst
@@ -217,8 +216,7 @@ class PythonParser:
             p[0] = []
         else:
             p[0] = p[1]
-    
-    
+
     def p_arg_lst(self, p):
         """
         arg_lst : arg_lst COMMA expr
@@ -229,8 +227,7 @@ class PythonParser:
             p[0] = [p[1]]
         else:
             p[0] = p[1] + [p[3]]
-    
-    
+
     def p_expr_boolop(self, p):
         """
         expr : expr OR expr

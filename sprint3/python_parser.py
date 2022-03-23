@@ -118,6 +118,7 @@ class PythonParser:
             p[0] = ast.Assert(p[2])
         else:
             p[0] = ast.Assert(p[2], p[4])
+
     def p_break_statement(self, p):
         """
         break : BREAK NEWLINE
@@ -209,14 +210,14 @@ class PythonParser:
         """
         p[1] = ast.Attribute(p[1], p[3], ctx=ast.Load())
         p[0] = ast.Call(p[1], p[4], [])
-    
+
     def p_func_call(self, p):
         """
         expr : ID args
         """
         p[1] = ast.Name(p[1], ast.Load())
         p[0] = ast.Call(p[1], p[2], [])
-    
+
     def p_expr_lst(self, p):
         """
         expr : LBRACE args_or_empty RBRACE
@@ -250,8 +251,7 @@ class PythonParser:
             p[0] = [p[1]]
         else:
             p[0] = p[1] + [p[3]]
-    
-    
+
     def p_expr_index(self, p):
         """
         expr : expr LBRACE expr RBRACE
@@ -268,11 +268,11 @@ class PythonParser:
         # we're not supporting tuple slices
         if len(p) == 3:
             if p[2] == ':':
-                p[0] = ast.Slice(lower = p[1])
+                p[0] = ast.Slice(lower=p[1])
             else:
-                p[0] = ast.Slice(upper = p[2])
+                p[0] = ast.Slice(upper=p[2])
         elif len(p) == 4:
-            p[0] = ast.Slice(lower = p[1], upper = p[3])
+            p[0] = ast.Slice(lower=p[1], upper=p[3])
 
     def p_expr_boolop(self, p):
         """

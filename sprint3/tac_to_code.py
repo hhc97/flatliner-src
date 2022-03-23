@@ -1,8 +1,8 @@
+import argparse
 import ast
 
 from code_to_tac import ASTVisitor
 from python_parser import PythonParser
-import argparse
 
 code = []
 START = 'main'
@@ -10,10 +10,12 @@ TEMP = 't_'
 BLOCK = '_L'
 DEBUG = False
 
+
 def printd(*args, **kwargs):
     """Printing for debugging"""
     if DEBUG:
         print(*args, **kwargs)
+
 
 class TACConverter:
 
@@ -60,10 +62,10 @@ class TACConverter:
             if op == 'SLICE':
                 temp_var = var
                 lst = self.constant_handler(statement[1], var_d)
-                _, start, stop, _ = statements[index] # next line
+                _, start, stop, _ = statements[index]  # next line
                 start = self.constant_handler(start, var_d) if start else start
                 stop = self.constant_handler(stop, var_d) if stop else stop
-                slice_node = ast.Slice(lower = start,  upper=stop)
+                slice_node = ast.Slice(lower=start, upper=stop)
                 node = ast.Subscript(lst, slice_node, ctx=ast.Load())
                 var_d[temp_var] = node
                 self.lineno += 1
@@ -78,7 +80,7 @@ class TACConverter:
             if op == 'INDEX':
                 temp_var = var
                 lst = self.constant_handler(statement[1], var_d)
-                index_num = statements[index][2] # next line
+                index_num = statements[index][2]  # next line
                 index_node = self.constant_handler(index_num, var_d)
                 node = ast.Subscript(lst, index_node, ctx=ast.Load())
                 var_d[temp_var] = node
@@ -112,7 +114,6 @@ class TACConverter:
             self.handle_statement(statement, var_d, code)
 
         return code
-
 
     def handle_statement(self, statement, var_d, code):
         op, var = statement[0], statement[3]
@@ -155,7 +156,7 @@ class TACConverter:
         printd('CALL')
         num_params = statement[2]
         call_params = params[-num_params:]
-        for _ in range(num_params): 
+        for _ in range(num_params):
             if params: params.pop()
         # method call
         if statement[1]:
@@ -165,7 +166,7 @@ class TACConverter:
             name = ast.Name(statement[3], ast.Load())
         for i, p in enumerate(call_params):
             call_params[i] = self.constant_handler(p, var_d)
-        return ast.Call(name, call_params, [], lineno = self.lineno)
+        return ast.Call(name, call_params, [], lineno=self.lineno)
 
     def return_handler(self, statement, var_d):
         printd('RETURN')
@@ -174,7 +175,7 @@ class TACConverter:
 
     def continue_handler(self, statement=None, var_d=None):
         return ast.Continue()
-    
+
     def break_handler(self, statement=None, var_d=None):
         return ast.Break()
 
@@ -302,24 +303,24 @@ class TACConverter:
         lst_name = statement[3]
         while index < len(statements):
             statement = statements[index]
-            op, _, _,var = statement
+            op, _, _, var = statement
             index += 1
             if op == 'END-LIST' and var == lst_name:
                 break
             # nested list
             if op == 'START-LIST':
                 _, index = self.list_handler(statement, var_d, index, statements)
-            
+
             elif op == 'PUSH-ELMT':
                 element = self.constant_handler(var, var_d)
                 lst.append(element)
             else:
-                next_index = index 
+                next_index = index
                 while statements[next_index][0] != 'PUSH-ELMT' and \
-                    not (statements[next_index][0] == ['END-LIST'] and \
-                        statements[next_index][3] == lst_name): 
+                        not (statements[next_index][0] == ['END-LIST'] and \
+                             statements[next_index][3] == lst_name):
                     next_index += 1
-                self.convert(statements[index-1:next_index], var_d)
+                self.convert(statements[index - 1:next_index], var_d)
                 index = next_index
         var_d[lst_name] = ast.List(lst)
         return var_d[lst_name], index
@@ -336,8 +337,6 @@ if __name__ == '__main__':
     file = 'test_input.py'
     if args.FILE:
         file = args.FILE
-    
-
 
     visitor = ASTVisitor()
     infile = open(file)
@@ -345,13 +344,12 @@ if __name__ == '__main__':
     parser.build()
     tree = parser.get_ast(infile.read())
 
-
     printd(ast.dump(tree, indent=4))
     visitor.visit(tree)
     print(visitor.tac)
 
     converter = TACConverter(visitor.tac)
     wrap = converter.get_ast()
-   
+
     printd(ast.dump(wrap, indent=4))
     print(f'Code:\n{ast.unparse(wrap)}')

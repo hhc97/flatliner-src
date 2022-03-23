@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
 
 class Node(object):
     """
@@ -22,6 +21,7 @@ class Node(object):
 
     # Set of attributes for a given node
     attr_names = ()
+
 
 class NodeVisitor(object):
     """
@@ -70,6 +70,7 @@ class NodeVisitor(object):
         self.visit(node.class_decl, offset=2)
         print("====== PROGRAM END ======")
 
+
 class AssignStmt(Node):
     def __init__(self, name, expr, coord=None):
         self.name = name
@@ -82,7 +83,8 @@ class AssignStmt(Node):
             nodelist.append(('expr', self.expr))
         return tuple(nodelist)
 
-    attr_names = ('name', )
+    attr_names = ('name',)
+
 
 class BinOp(Node):
     def __init__(self, op, left, right, coord=None):
@@ -99,7 +101,8 @@ class BinOp(Node):
             nodelist.append(('right', self.right))
         return tuple(nodelist)
 
-    attr_names = ('op', )
+    attr_names = ('op',)
+
 
 class ClassDecl(Node):
     def __init__(self, name, extend, var_decl, method_decl, coord=None):
@@ -117,7 +120,8 @@ class ClassDecl(Node):
             nodelist.append(('method_decl', self.method_decl))
         return tuple(nodelist)
 
-    attr_names = ('name', )
+    attr_names = ('name',)
+
 
 class Constant(Node):
     def __init__(self, type, value, coord=None):
@@ -129,7 +133,8 @@ class Constant(Node):
         nodelist = []
         return tuple(nodelist)
 
-    attr_names = ('type', 'value', )
+    attr_names = ('type', 'value',)
+
 
 class DeclStmt(Node):
     def __init__(self, name, type, expr=None):
@@ -145,7 +150,8 @@ class DeclStmt(Node):
             nodelist.append(('expr', self.expr))
         return tuple(nodelist)
 
-    attr_names = ('name', )
+    attr_names = ('name',)
+
 
 class Extend(Node):
     def __init__(self, name, coord=None):
@@ -155,7 +161,8 @@ class Extend(Node):
         nodelist = []
         return tuple(nodelist)
 
-    attr_names = ('name', )
+    attr_names = ('name',)
+
 
 class Formal(Node):
     def __init__(self, name, type, coord=None):
@@ -169,7 +176,8 @@ class Formal(Node):
             nodelist.append(('type', self.type))
         return tuple(nodelist)
 
-    attr_names = ('name', )
+    attr_names = ('name',)
+
 
 def IfStmt(Node):
     def __init__(self, cond, true_body, false_body, coord=None):
@@ -189,6 +197,7 @@ def IfStmt(Node):
 
     attr_names = ()
 
+
 class MethodDecl(Node):
     def __init__(self, name, ret_type, params, body, coord=None):
         self.name = name
@@ -207,7 +216,8 @@ class MethodDecl(Node):
             nodelist.append(('params', self.params))
         return tuple(nodelist)
 
-    attr_names = ('name', )
+    attr_names = ('name',)
+
 
 class ObjInstance(Node):
     def __init__(self, obj, coord=None):
@@ -218,7 +228,8 @@ class ObjInstance(Node):
         nodelist = []
         return tuple(nodelist)
 
-    attr_names = ('obj', )
+    attr_names = ('obj',)
+
 
 class ParamList(Node):
     def __init__(self, params, coord=None):
@@ -232,6 +243,7 @@ class ParamList(Node):
         return tuple(nodelist)
 
     attr_names = ()
+
 
 class Program(Node):
     def __init__(self, main_class, class_decl, coord=None):
@@ -248,6 +260,7 @@ class Program(Node):
 
     attr_names = ()
 
+
 class RetStmt(Node):
     def __init__(self, expr, coord=None):
         self.expr = expr
@@ -261,6 +274,7 @@ class RetStmt(Node):
 
     attr_names = ()
 
+
 class StmtList(Node):
     def __init__(self, stmt_lst, coord=None):
         self.stmt_lst = stmt_lst
@@ -273,6 +287,7 @@ class StmtList(Node):
 
     attr_names = ()
 
+
 class Type(Node):
     def __init__(self, name, coord=None):
         self.name = name
@@ -282,7 +297,8 @@ class Type(Node):
         nodelist = []
         return tuple(nodelist)
 
-    attr_names = ('name', )
+    attr_names = ('name',)
+
 
 class UnaryOp(Node):
     def __init__(self, op, expr, coord=None):
@@ -296,7 +312,8 @@ class UnaryOp(Node):
             nodelist.append(('expr', self.expr))
         return tuple(nodelist)
 
-    attr_names = ('op', )
+    attr_names = ('op',)
+
 
 class WhileStmt(Node):
     def __init__(self, cond, body, coord=None):

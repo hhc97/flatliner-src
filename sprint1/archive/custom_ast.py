@@ -1,6 +1,3 @@
-import sys
-
-
 ### Visitor ###
 class NodeVisitor(object):
     """

@@ -8,7 +8,7 @@ for i in range(22):
         k = j
         print(k, 'k and j')
         while k > 15:
-            k = k -  1
+            k = k - 1
             if k > 20:
                 print(k, 'k continue')
                 continue

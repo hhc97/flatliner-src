@@ -199,7 +199,7 @@ class PythonLexer:
             token.at_line_start = at_line_start
 
             if token.type == "LBRACE":
-                is_in_list = True 
+                is_in_list = True
                 token.must_indent = False
             elif token.type == "RBRACE":
                 is_in_list = False
