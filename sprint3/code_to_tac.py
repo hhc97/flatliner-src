@@ -189,7 +189,6 @@ class ASTVisitor(ast.NodeVisitor):
         while j < len(ifStatements):
             ifStmt, L = ifStatements[j]
             self.key = f'_L{L}'
-            print(j,ifStmt.body)
             for body in ifStmt.body:
                 i = 0
                 self.key = f'_L{L}'
@@ -203,7 +202,6 @@ class ASTVisitor(ast.NodeVisitor):
                             if f'_L{L}' not in keys:
                                 keys.append(f'_L{L}')
                     else:
-                        #print("HERE", body, end_segment, go_to_end_segment and not i >= len(body) - 1 and not j >= len(ifStatements))
                         self.visit(element,end_segment=(end_segment if go_to_end_segment else None), go_to_end_segment = (go_to_end_segment or i < len(body) - 1))
                         if (go_to_end_segment or j < len(ifStatements) - 1) and end_segment:
                             if f'_L{L}' not in keys:
