@@ -8,14 +8,10 @@ for i in range(22):
         k = j
         print(k, 'k and j')
         while k > 15:
-            k -= 1
+            k = k -  1
             if k > 20:
                 print(k, 'k continue')
                 continue
-            else:
-                if k < 18:
-                    print(k, 'k break')
-                    break
             print(k, 'finished k loop')
         if j < i + 5:
             print(j, 'continue j')
@@ -31,7 +27,7 @@ for i in range(22):
 
 a = 5
 while a < 15:
-    a += 1
+    a = a + 1
     print(a, 'a loop')
     if a > 7:
         for b in range(a, a + 5):
@@ -40,7 +36,7 @@ while a < 15:
                 continue
             else:
                 while b < a + 15:
-                    b += 1
+                    b = b + 1
                     if b - a > 3:
                         print('b while break')
                         break
