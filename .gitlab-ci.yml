@@ -7,22 +7,22 @@ before_script:
   - source venv/bin/activate
   - pip install -r requirements.txt
 
-test-s1:
+test-sprint1:
   stage: test
   script:
     - cd sprint1 && make test
 
-test-s2:
+test-sprint2:
   stage: test
   script:
     - cd sprint2 && make test
 
-test-s3:
+test-sprint3:
   stage: test
   script:
     - cd sprint3 && make test
 
-test-s4:
+test-sprint4:
   stage: test
   script:
     - cd sprint4 && make test
