@@ -176,8 +176,17 @@ class ASTVisitor(ast.NodeVisitor):
             self.addToTac(('IF', tempVar, None, f'_L{L}'))
 
         if curNode != None:
-            for val in curNode:
-                self.visit(val, end_segment=end_segment if go_to_end_segment else None, go_to_end_segment=False)
+            i = 0
+            while i < len(curNode):
+                val = curNode[i]
+                if type(val) in [ast.For,ast.If,ast.While] and i < len(curNode) - 1:
+                    new_segment = f'_L{self.getL()}'
+                    self.visit(val, end_segment=new_segment,
+                                   go_to_end_segment=True)
+                    self.key = new_segment
+                else:
+                    self.visit(val, end_segment= None, go_to_end_segment=False)
+                i+=1
         if go_to_end_segment and end_segment:
             self.addToTac(('GOTO', None, None, end_segment if go_to_end_segment else None))
 
