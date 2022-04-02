@@ -207,10 +207,18 @@ class PythonParser:
 
     def p_method_call(self, p):
         """
-        expr : expr DOT ID args
+        expr : ID DOT ID args
+             | LBRACE args_or_empty RBRACE DOT ID args
+             
         """
-        p[1] = ast.Attribute(p[1], p[3], ctx=ast.Load())
-        p[0] = ast.Call(p[1], p[4], [])
+        if len(p) == 5:
+            p[1] = ast.Name(p[1], ast.Load())
+            p[1] = ast.Attribute(p[1], p[3], ctx=ast.Load())
+            p[0] = ast.Call(p[1], p[4], [])
+        else:
+            p[1] = ast.List(p[2] if p[2] else [])
+            p[1] = ast.Attribute(p[1], p[5], ctx=ast.Load())
+            p[0] = ast.Call(p[1], p[6], [])
 
     def p_func_call(self, p):
         """
