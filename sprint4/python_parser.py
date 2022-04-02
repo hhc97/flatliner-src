@@ -28,6 +28,7 @@ class PythonParser:
         ("left", "AND"),
         ("left", "EQ", "GREATER", "LESSER", "NEQ", "GREATEREQ", "LESSEREQ",),
         ("left", "PLUS", "MINUS"),
+        ("left", "MODULO"),
         ("left", "TIMES", "DIVIDE"),
     )
 
