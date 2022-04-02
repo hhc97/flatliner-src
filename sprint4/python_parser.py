@@ -264,15 +264,16 @@ class PythonParser:
     def p_expr_index(self, p):
         """
         expr : expr LBRACE expr RBRACE
-             | expr LBRACE slice RBRACE
+             | expr slice
         """
-        p[0] = ast.Subscript(p[1], p[3], ctx=ast.Load())
+        if len(p) == 3:
+            p[0] = ast.Subscript(p[1], p[2], ctx=ast.Load())
+        else:
+            p[0] = ast.Subscript(p[1], p[3], ctx=ast.Load())
 
     def p_slice(self, p):
         """
-        slice : expr COLON expr
-              | expr COLON
-              | COLON expr
+        slice : LBRACE NUMBER COLON NUMBER RBRACE
         """
         # we're not supporting tuple slices
         if len(p) == 3:
@@ -280,8 +281,10 @@ class PythonParser:
                 p[0] = ast.Slice(lower=p[1])
             else:
                 p[0] = ast.Slice(upper=p[2])
-        elif len(p) == 4:
-            p[0] = ast.Slice(lower=p[1], upper=p[3])
+        elif len(p) == 6:
+            p[2] = ast.Constant(p[2], 'int')
+            p[4] = ast.Constant(p[4], 'int')
+            p[0] = ast.Slice(lower=p[2], upper=p[4])
 
     def p_expr_boolop(self, p):
         """
