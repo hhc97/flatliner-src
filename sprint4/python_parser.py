@@ -67,6 +67,7 @@ class PythonParser:
              | return
              | expr_stmt
              | break
+             | pass
              | continue
              | assert
         """
@@ -129,6 +130,13 @@ class PythonParser:
         """
         printd('break')
         p[0] = ast.Break()
+    
+    def p_pass_statement(self, p):
+        """
+        pass : PASS NEWLINE
+        """
+        printd('pass')
+        p[0] = ast.Pass()
 
     def p_continue_statement(self, p):
         """
