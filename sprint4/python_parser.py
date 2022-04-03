@@ -24,12 +24,14 @@ class PythonParser:
     """
 
     precedence = (
+        ("left", "LBRACE"),
         ("left", "OR"),
         ("left", "AND"),
         ("left", "EQ", "GREATER", "LESSER", "NEQ", "GREATEREQ", "LESSEREQ",),
         ("left", "PLUS", "MINUS"),
         ("left", "MODULO"),
         ("left", "TIMES", "DIVIDE"),
+        ("left", "IN")
     )
 
     ################################
