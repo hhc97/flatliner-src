@@ -24,6 +24,7 @@ class PythonParser:
     """
 
     precedence = (
+        ("left", "NOT"),
         ("left", "LBRACE"),
         ("left", "OR"),
         ("left", "AND"),
@@ -339,6 +340,13 @@ class PythonParser:
             '%': ast.Mod()
         }
         p[0] = ast.BinOp(p[1], op_map[p[2]], p[3])
+    
+    def p_expr_not(self, p):
+        """
+        expr : NOT expr
+        """
+        printd("unary op")
+        p[0] = ast.UnaryOp(ast.Not(), p[2])
 
     def p_expr_number(self, p):
         """
@@ -373,6 +381,18 @@ class PythonParser:
         expr : ID
         """
         p[0] = ast.Name(p[1], ast.Load())
+    
+    def p_expr_none(self, p):
+        """
+        comment : COMMENT
+        """
+        return # we don't add comments to the ast
+        
+    def p_expr_none(self, p):
+        """
+        expr : NONE
+        """
+        p[0] = ast.Constant(value=None)
 
     ################################
     ## if statements
