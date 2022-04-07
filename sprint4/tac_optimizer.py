@@ -61,7 +61,7 @@ class TACOptimizer:
         #print(var_d)
         for statement in statements:
             var = statement[3]
-            if self._removed_var(var_d, var):
+            if statement[2] != 'ret' and self._removed_var(var_d, var):
                 var_d[var] = None
                 continue
             opt_statements.append(statement)
@@ -93,10 +93,10 @@ class TACOptimizer:
         """
         Return True if variable has been or will be removed.
         """
-        if var.startswith(TEMP) or not var in var_d:
+        if not var in var_d:
             return False
         # will be removed
-        if len(var_d[var]) == 0:
+        if not var.startswith(TEMP) and len(var_d[var]) == 0:
             return True 
         # has been removed
         if var_d[var] is None:
