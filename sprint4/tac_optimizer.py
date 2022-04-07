@@ -52,7 +52,7 @@ class TACOptimizer:
                 pass
             if op == 'PUSH-PARAM':
                 if var in var_d:
-                    var_d[var][1] = var_d[var][1] + 1
+                    var_d[var].append('call')
                 continue
             if op == 'CALL':
                 continue
@@ -61,10 +61,10 @@ class TACOptimizer:
         #print(var_d)
         for statement in statements:
             var = statement[3]
-            if not var.startswith(TEMP) and var in var_d and var_d[var][1] == 0:
+            if self._removed_var(var_d, var):
+                var_d[var] = None
                 continue
             opt_statements.append(statement)
-
         return opt_statements
 
     def handle_statement(self, statement, var_d, code):
@@ -81,13 +81,34 @@ class TACOptimizer:
                     'BREAK': self.break_handler
                     }
         if var:
-            var_d[var] = [statement, 0] # 0 occurences, we're counting
+            var_d[var] = [] # 0 occurences, we're counting
         
         if var1 in var_d: # is a variable and now used in an expression
-            var_d[var1][1] = var_d[var1][1] + 1
+            var_d[var1].append(var)
         
         if var2 in var_d: # is a variable and now used in an expression
-            var_d[var2][1] = var_d[var2][1] + 1
+            var_d[var2].append(var)
+
+    def _removed_var(self, var_d, var):
+        """
+        Return True if variable has been or will be removed.
+        """
+        if var.startswith(TEMP) or not var in var_d:
+            return False
+        # will be removed
+        if len(var_d[var]) == 0:
+            return True 
+        # has been removed
+        if var_d[var] is None:
+            return True
+        
+        for var2 in var_d[var]:
+            if not self._removed_var(var_d, var2):
+                return False 
+        return True
+        
+        
+
 
     def constant_handler(self, constant, var_d):
         pass
