@@ -35,22 +35,30 @@ class TACOptimizer:
             op = statement[0]
             var = statement[3]
             if op == 'IF':
-                pass
+                continue
             if op == 'WHILE':
-                pass
+                continue
             if op == 'FOR':
-                pass
+                continue
             if op == 'DEFN':
-                pass
+                continue
             if op == 'START-LIST':
-                pass
+                continue
             if op == 'SLICE':
-                pass
+                continue
             if op == 'INDEX':
-                pass
+                lst = statement[1]
+                next_stmt = statements[index]
+                index_var = next_stmt[2]
+                if lst in var_d:
+                    var_d[lst].append('list')
+                if index_var in var_d:
+                    var_d[index_var].append('index')
+                index += 1
+                continue
             if op == 'GOTO':
-                pass
-            if op == 'PUSH-PARAM':
+                continue
+            if op == 'PUSH-ELMT' or op == 'PUSH-PARAM':
                 if var in var_d:
                     var_d[var].append('call')
                 continue
@@ -61,7 +69,11 @@ class TACOptimizer:
         #print(var_d)
         for statement in statements:
             var = statement[3]
-            if statement[2] != 'ret' and self._removed_var(var_d, var):
+            op = statement[0]
+            removing = ['+', '-', '*', '/','OR', 
+                        'AND', '==', '>','<', '<=', 
+                        '>=', '!=','=','in']
+            if op in removing and statement[2] != 'ret' and self._removed_var(var_d, var):
                 var_d[var] = None
                 continue
             opt_statements.append(statement)
@@ -70,16 +82,6 @@ class TACOptimizer:
     def handle_statement(self, statement, var_d, code):
         op, var = statement[0], statement[3]
         var1, var2 = statement[1], statement[2]
-        handlers = {'+': self.binary_handler, '-': self.binary_handler, '*': self.binary_handler,
-                    '/': self.binary_handler,
-                    'OR': self.bool_handler, 'AND': self.bool_handler, '==': self.comp_handler, '>': self.comp_handler,
-                    '<': self.comp_handler, '<=': self.comp_handler, '>=': self.comp_handler, '!=': self.comp_handler,
-                    '=': self.assignment_handler,
-                    'in': self.comp_handler,
-                    'RETURN': self.return_handler,
-                    'CONTINUE': self.continue_handler,
-                    'BREAK': self.break_handler
-                    }
         if var:
             var_d[var] = [] # 0 occurences, we're counting
         
@@ -95,12 +97,14 @@ class TACOptimizer:
         """
         if not var in var_d:
             return False
-        # will be removed
-        if not var.startswith(TEMP) and len(var_d[var]) == 0:
-            return True 
+
         # has been removed
         if var_d[var] is None:
             return True
+
+        # will be removed
+        if not var.startswith(TEMP) and len(var_d[var]) == 0:
+            return True 
         
         for var2 in var_d[var]:
             if not self._removed_var(var_d, var2):
