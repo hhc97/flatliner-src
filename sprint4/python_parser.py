@@ -389,12 +389,6 @@ class PythonParser:
         expr : ID
         """
         p[0] = ast.Name(p[1], ast.Load())
-    
-    def p_expr_none(self, p):
-        """
-        comment : COMMENT
-        """
-        return # we don't add comments to the ast
         
     def p_expr_none(self, p):
         """
