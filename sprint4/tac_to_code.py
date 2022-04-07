@@ -3,6 +3,7 @@ import ast
 
 from code_to_tac import ASTVisitor
 from python_parser import PythonParser
+from tac_optimizer import TACOptimizer
 
 code = []
 START = 'main'
@@ -348,7 +349,10 @@ if __name__ == '__main__':
     visitor.visit(tree)
     print(visitor.tac)
 
-    converter = TACConverter(visitor.tac)
+    optimizer = TACOptimizer(visitor.tac)
+    opt_tac = optimizer.optimize_tac()
+
+    converter = TACConverter(opt_tac)
     wrap = converter.get_ast()
 
     printd(ast.dump(wrap, indent=4))

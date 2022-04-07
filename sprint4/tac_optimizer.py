@@ -17,16 +17,14 @@ def printd(*args, **kwargs):
         print(*args, **kwargs)
 
 
-class TACConverter:
+class TACOptimizer:
 
     def __init__(self, tac):
         self.tac = tac
         self.lineno = 0
-        self.opt_tac = {}
 
-    def convert(self, statements=None, var_d=None):
-        if statements is None:
-            statements = self.tac[START]  # start, otherwise we may be working on another scope
+    def optimize_block(self, block, var_d=None):
+        statements = self.tac[block]
         if var_d is None: var_d = {}  # store variables here
         code = []
         index = 0
@@ -67,9 +65,6 @@ class TACConverter:
                 continue
             opt_statements.append(statement)
 
-        if statements is None:
-            self.opt_tac[START] = opt_statements
-        print(opt_statements)
         return opt_statements
 
     def handle_statement(self, statement, var_d, code):
@@ -136,6 +131,11 @@ class TACConverter:
     def list_handler(self, statement, var_d, index, statements):
         pass
 
+    def optimize_tac(self):
+        optimized_tac = {}
+        for scope in self.tac:
+            optimized_tac[scope] = self.optimize_block(scope)
+        return optimized_tac
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')
@@ -155,5 +155,6 @@ if __name__ == '__main__':
     visitor.visit(tree)
     printd(visitor.tac)
 
-    converter = TACConverter(visitor.tac)
-    converter.convert()
+    optimizer = TACOptimizer(visitor.tac)
+
+    print(optimizer.optimize_tac())
