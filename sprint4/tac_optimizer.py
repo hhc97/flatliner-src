@@ -22,6 +22,7 @@ class TACConverter:
     def __init__(self, tac):
         self.tac = tac
         self.lineno = 0
+        self.opt_tac = {}
 
     def convert(self, statements=None, var_d=None):
         if statements is None:
@@ -52,15 +53,46 @@ class TACConverter:
             if op == 'GOTO':
                 pass
             if op == 'PUSH-PARAM':
-                pass
+                if var in var_d:
+                    var_d[var][1] = var_d[var][1] + 1
+                continue
             if op == 'CALL':
-                pass
+                continue
             self.handle_statement(statement, var_d, code)
+        opt_statements = []
+        #print(var_d)
+        for statement in statements:
+            var = statement[3]
+            if not var.startswith(TEMP) and var in var_d and var_d[var][1] == 0:
+                continue
+            opt_statements.append(statement)
 
-        return code
+        if statements is None:
+            self.opt_tac[START] = opt_statements
+        print(opt_statements)
+        return opt_statements
 
     def handle_statement(self, statement, var_d, code):
-        pass
+        op, var = statement[0], statement[3]
+        var1, var2 = statement[1], statement[2]
+        handlers = {'+': self.binary_handler, '-': self.binary_handler, '*': self.binary_handler,
+                    '/': self.binary_handler,
+                    'OR': self.bool_handler, 'AND': self.bool_handler, '==': self.comp_handler, '>': self.comp_handler,
+                    '<': self.comp_handler, '<=': self.comp_handler, '>=': self.comp_handler, '!=': self.comp_handler,
+                    '=': self.assignment_handler,
+                    'in': self.comp_handler,
+                    'RETURN': self.return_handler,
+                    'CONTINUE': self.continue_handler,
+                    'BREAK': self.break_handler
+                    }
+        if var:
+            var_d[var] = [statement, 0] # 0 occurences, we're counting
+        
+        if var1 in var_d: # is a variable and now used in an expression
+            var_d[var1][1] = var_d[var1][1] + 1
+        
+        if var2 in var_d: # is a variable and now used in an expression
+            var_d[var2][1] = var_d[var2][1] + 1
 
     def constant_handler(self, constant, var_d):
         pass
@@ -124,3 +156,4 @@ if __name__ == '__main__':
     printd(visitor.tac)
 
     converter = TACConverter(visitor.tac)
+    converter.convert()
