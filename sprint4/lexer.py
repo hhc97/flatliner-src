@@ -8,7 +8,6 @@ MUST_INDENT = 2
 # Reserved words
 reserved = {
     'if': 'IF',
-    'then': 'THEN',
     'else': 'ELSE',
     'while': 'WHILE',
     'for': 'FOR',
@@ -41,8 +40,7 @@ tokens = [
              'DOT',
              'COLON',
 
-             'PE',  # +=
-             'ME',  # -=
+
              'MODULO',
 
              'GREATER',
@@ -52,7 +50,6 @@ tokens = [
              'EQ',
              'NEQ',
 
-             'COMMENT',
              'NEWLINE',
 
              'LPAREN',
@@ -112,8 +109,6 @@ class PythonLexer:
     t_MINUS = r'-'
     t_TIMES = r'\*'
     t_DIVIDE = r'/'
-    t_PE = r'\+\='
-    t_ME = r'\-\='
 
     t_DOT = r'\.'
     t_MODULO = r'\%'
