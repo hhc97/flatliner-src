@@ -35,8 +35,14 @@ class TACOptimizer:
             op = statement[0]
             var = statement[3]
             if op == 'IF':
+                var = statement[1]
+                if var in var_d:
+                    var_d[var].append('if')
                 continue
             if op == 'WHILE':
+                var = statement[1]
+                if var in var_d:
+                    var_d[var].append('if')
                 continue
             if op == 'FOR':
                 continue
@@ -66,7 +72,7 @@ class TACOptimizer:
                 continue
             self.handle_statement(statement, var_d, code)
         opt_statements = []
-        #print(var_d)
+        print(var_d)
         for statement in statements:
             var = statement[3]
             op = statement[0]
