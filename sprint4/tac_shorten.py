@@ -33,7 +33,9 @@ class TACShortener:
                     '==': self.comparison_handler, '>': self.comparison_handler,
                     '<': self.comparison_handler, '<=': self.comparison_handler, '>=': self.comparison_handler, '!=': self.comparison_handler,
                     '=': self.assignment_handler,
-                    'in': self.comparison_handler
+                    'in': self.comparison_handler,
+                    'DEFN': self.function_handler,
+                    'ADD-PARAM': self.function_handler
                     }
 
     def generate_small_string(self):
@@ -77,8 +79,8 @@ class TACShortener:
     def call_handler(self, statement, params):
         pass
 
-    def binary_handler(self, statement):
-        pass
+    def function_handler(self, list_of_statements, statement):
+        list_of_statements.append((statement[0],None,None,self.get_new_name(statement[-1])))
 
     def comparison_handler(self, list_of_statements, statement):
         op, arg1, arg2, mainAssign = statement 
@@ -123,7 +125,14 @@ class TACShortener:
     def optimize_tac(self):
         optimized_tac = {}
         for scope in self.tac:
-            optimized_tac[scope] = self.optimize_block(scope)
+            if not scope.startswith(BLOCK) and scope != 'main':
+                new_var = self.get_new_name(scope)
+                optimized_tac[new_var] = {}
+        for scope in self.tac:
+            if not scope.startswith(BLOCK) and scope != 'main':
+                optimized_tac[self.get_new_name(scope)] = self.optimize_block(scope)
+            else:
+                optimized_tac[scope] = self.optimize_block(scope)
         return optimized_tac
 
 if __name__ == '__main__':
