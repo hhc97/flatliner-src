@@ -25,7 +25,6 @@ class TACShortener:
 
     def __init__(self, tac):
         self.tac = tac
-        self.lineno = 0
         self.short_string_index = 0
         self.mapping = {}
         self.handlers = {'+': self.comparison_handler, '-': self.comparison_handler, '*': self.comparison_handler,
@@ -36,7 +35,9 @@ class TACShortener:
                     '=': self.assignment_handler,
                     'in': self.comparison_handler,
                     'DEFN': self.function_handler,
-                    'ADD-PARAM': self.add_param_handler
+                    'ADD-PARAM': self.add_param_handler,
+                    'PUSH-PARAM': self.push_param_handler,
+                    'CALL': self.call_handler
                     }
         self.optimized_tac_statements = {}
 
@@ -66,11 +67,26 @@ class TACShortener:
             self.mapping[name] = new_var
             return new_var
 
-    def call_handler(self, statement, params):
-        pass
+    def call_handler(self, list_of_statements, statement):
+        op, objName, length, var = statement
+
+        if objName != None:
+            objName = self.mapping[objName]
+        
+        if var in self.mapping:
+            var = self.mapping[var]
+        list_of_statements.append((op,objName,length,var))
 
     def add_param_handler(self, list_of_statements, statement):
         list_of_statements.append((statement[0],None,None,self.get_new_name(statement[-1])))
+
+    def push_param_handler(self, list_of_statements, statement):
+        op, _, _, var = statement
+
+        if type(var) == str and var in self.mapping:
+            var = self.mapping[var]
+        list_of_statements.append((op, None, None, var))
+
 
     def function_handler(self, list_of_statements, statement):
         #Add statement to old key
@@ -79,7 +95,6 @@ class TACShortener:
 
         old_mapping = self.mapping
         self.mapping = deepcopy(self.mapping)
-        print(statement_name)
         self.optimize_tac(statement_name, self.get_new_name(statement_name))
         self.mapping = old_mapping
 
@@ -115,12 +130,6 @@ class TACShortener:
         pass
 
     def for_handler(self, statement, outer_code):
-        pass
-
-    def function_hander(self, statement, outer_code):
-        pass
-
-    def list_handler(self, statement, index, statements):
         pass
 
     def optimize_tac(self, block = 'main', new_key = 'main'):
