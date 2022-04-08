@@ -39,9 +39,14 @@ class TACShortener:
                     'PUSH-PARAM': self.push_param_handler,
                     'CALL': self.call_handler,
                     'INDEX': self.index_handler,
-                    'SLICE': self.slice_handler
+                    'SLICE': self.slice_handler,
+                    'GOTO': self.goto_handler,
+                    'IF': self.control_flow_handler,
+                    'WHILE': self.control_flow_handler,
+                    'FOR': self.control_flow_handler
                     }
         self.optimized_tac_statements = {}
+        self.keys_done = set()
 
     def generate_small_string(self):
         index = self.short_string_index
@@ -134,14 +139,20 @@ class TACShortener:
             arg1 = self.mapping[arg1]
         list_of_statements.append((op, arg1, arg2, var))
 
-    def if_handler(self, statement, else_block, outer_code):
-        pass
+    def control_flow_handler(self, list_of_statements, statement):
+        list_of_statements.append(statement)
+        
+        key = statement[-1]
+        if not key in self.keys_done and key in self.tac:
+            self.optimize_tac(key,key)
+            self.keys_done.add(key)
 
-    def while_handler(self, statement, outer_code):
-        pass
-
-    def for_handler(self, statement, outer_code):
-        pass
+    def goto_handler(self, list_of_statements, statement):
+        list_of_statements.append(statement)
+        key = statement[-1]
+        if not key in self.keys_done and key in self.tac:
+            self.optimize_tac(key,key)
+            self.keys_done.add(key)
 
     def optimize_tac(self, block = 'main', new_key = 'main'):
         statements = self.tac[block]
