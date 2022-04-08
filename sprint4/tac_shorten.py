@@ -37,7 +37,9 @@ class TACShortener:
                     'DEFN': self.function_handler,
                     'ADD-PARAM': self.add_param_handler,
                     'PUSH-PARAM': self.push_param_handler,
-                    'CALL': self.call_handler
+                    'CALL': self.call_handler,
+                    'INDEX': self.index_handler,
+                    'SLICE': self.slice_handler
                     }
         self.optimized_tac_statements = {}
 
@@ -119,9 +121,18 @@ class TACShortener:
             mainAssign = self.get_new_name(mainAssign)
         list_of_statements.append((op, arg1, arg2, mainAssign))
 
+    def index_handler(self, list_of_statements, statement):
+        op, arg1, arg2, var = statement 
 
-    def comp_handler(self, statement):
-        pass
+        if arg1 in self.mapping:
+            arg1 = self.mapping[arg1]
+        list_of_statements.append((op, arg1, arg2, var))
+
+    def slice_handler(self, list_of_statements, statement):
+        op, arg1, arg2, var = statement
+        if arg1 in self.mapping:
+            arg1 = self.mapping[arg1]
+        list_of_statements.append((op, arg1, arg2, var))
 
     def if_handler(self, statement, else_block, outer_code):
         pass
