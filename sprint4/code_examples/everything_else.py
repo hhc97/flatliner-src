@@ -1,7 +1,9 @@
 import math
 import os as renamed_import
+from sys import version as ver
 
 print(renamed_import.sep)
+print(ver)
 
 a = {0: 0}
 a[5] = 0
@@ -285,3 +287,6 @@ class BinarySearchTree:
 
 print(BinarySearchTree(10)._right is None)
 print(BinarySearchTree(10)._right.is_empty())
+
+a = not (not True or not False)
+print(a)

@@ -162,7 +162,8 @@ def test_comprehensive():
 
 def test_parse_files():
     base = './code_examples'
-    ignored = ['everything_else.py', 'advanced_ifs_and_loops.py', 'loops_flow_control.py']
+    ignored = ['everything_else.py', 'advanced_ifs_and_loops.py', 'loops_flow_control.py', 'inheritance.py',
+               'multiple_assignment.py']
     for file in os.listdir(base):
         if not any(file.endswith(ending) for ending in ignored):
             compare_parser(base + '/' + file)
