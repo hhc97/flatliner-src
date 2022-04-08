@@ -12,6 +12,8 @@ DEBUG = False
 alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 
+
+
 def printd(*args, **kwargs):
     """Printing for debugging"""
     if DEBUG:
@@ -25,6 +27,14 @@ class TACShortener:
         self.lineno = 0
         self.short_string_index = 0
         self.mapping = {}
+        self.handlers = {'+': self.comparison_handler, '-': self.comparison_handler, '*': self.comparison_handler,
+                    '/': self.comparison_handler,
+                    #'OR': self.bool_handler, 'AND': self.bool_handler, 
+                    '==': self.comparison_handler, '>': self.comparison_handler,
+                    '<': self.comparison_handler, '<=': self.comparison_handler, '>=': self.comparison_handler, '!=': self.comparison_handler,
+                    '=': self.assignment_handler,
+                   # 'in': self.comp_handler
+                    }
 
     def generate_small_string(self):
         index = self.short_string_index
@@ -58,30 +68,28 @@ class TACShortener:
         for statement in statements:
             
             #Basic statements
-            if statement[0] == '=':
-                self.assignment_handler(opt_statements, statement)
+            if statement[0] in self.handlers:
+                self.handlers[statement[0]](opt_statements, statement)
             else:
                 opt_statements.append(statement)
         return opt_statements
 
-    def constant_handler(self, constant):
-        pass
-
     def call_handler(self, statement, params):
-        pass
-
-    def return_handler(self, statement):
-        pass
-
-    def continue_handler(self, statement=None):
-        pass
-
-    def break_handler(self, statement=None):
         pass
 
     def binary_handler(self, statement):
         pass
 
+    def comparison_handler(self, list_of_statements, statement):
+        op, arg1, arg2, mainAssign = statement 
+
+        if type(arg1) == str and arg1 in self.mapping:
+            arg1 = self.mapping[arg1]
+        
+        if type(arg2) == str and arg2 in self.mapping:
+            arg2 = self.mapping[arg2]
+        list_of_statements.append((op, arg1, arg2, mainAssign))
+    
     def assignment_handler(self, list_of_statements, statement):
 
         op, arg1, arg2, mainAssign = statement
@@ -93,8 +101,6 @@ class TACShortener:
             mainAssign = self.get_new_name(mainAssign)
         list_of_statements.append((op, arg1, arg2, mainAssign))
 
-    def bool_handler(self, statement):
-        pass
 
     def comp_handler(self, statement):
         pass
