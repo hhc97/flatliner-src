@@ -4,7 +4,7 @@ y = x + 4
 z = 5
 print(z)
 
-a = z + 3
+a = z - 4
 b = z + 4
 lst = [a, b]
 print(lst[a])
