@@ -66,6 +66,7 @@ class Flatliner:
             ast.ClassDef: self.handle_classdef,
             ast.Return: self.handle_return,
             ast.Import: self.handle_import,
+            ast.ImportFrom: self.handle_importfrom,
         }
 
     def set_ast(self, infile: str):
@@ -104,10 +105,15 @@ class Flatliner:
 
     def handle_while(self, node, cont) -> str:
         self.needs_y = True
-        assigned_in_loop = {self.apply_handler(n.targets[0]) for n in ast.walk(node) if
-                            isinstance(n, ast.Assign) and not isinstance(n.targets[0], (ast.Attribute, ast.Subscript))}
-        assigned_in_loop |= {self.apply_handler(n.target) for n in ast.walk(node) if
-                             isinstance(n, ast.AugAssign) and not isinstance(n.target, (ast.Attribute, ast.Subscript))}
+        assigned_in_loop = {self.apply_handler(n.targets[0]) for n in ast.walk(node) if isinstance(n, ast.Assign)
+                            and not isinstance(n.targets[0], (ast.Attribute, ast.Subscript, ast.Tuple))
+                            and len(n.targets) == 1}
+        assigned_in_loop |= {self.apply_handler(n.target) for n in ast.walk(node) if isinstance(n, ast.AugAssign)
+                             and not isinstance(n.target, (ast.Attribute, ast.Subscript))}
+        assigned_in_loop |= {self.apply_handler(child) for n in ast.walk(node) if isinstance(n, ast.Assign)
+                             and isinstance(n.targets[0], ast.Tuple) for child in n.targets[0].elts if
+                             not any(isinstance(n2, (ast.Attribute, ast.Subscript)) for n2 in ast.walk(child))}
+        assigned_in_loop = sorted(assigned_in_loop)
         args = ', '.join(assigned_in_loop)
         loop_test = self.apply_handler(node.test)
         loop_id = f'_loop{self.loop_no}'
@@ -127,16 +133,17 @@ class Flatliner:
         return construct_lambda({v: f'{v} if "{v}" in dir() else None' for v in assigned_in_loop}, loop_repr)
 
     def handle_for(self, node, cont) -> str:
-        target = self.apply_handler(node.target)
+        target_id = f'_targ{self.loop_no}'
         iter_id = f'_items{self.loop_no}'
         term_id = f'_term{self.loop_no}'
-        post = ast.parse(f'{target} = {self._next_item()}').body
-        body_list = node.body + post
-        while_test = ast.parse(f'{target} is not {term_id}').body[0]
+        pre = ast.parse(f'{self.apply_handler(node.target)} = {target_id}').body
+        post = ast.parse(f'{target_id} = {self._next_item()}').body
+        body_list = pre + node.body + post
+        while_test = ast.parse(f'{target_id} is not {term_id}').body[0]
         while_equivalent = ast.While(while_test, body_list)
-        while_equivalent.target = target
+        while_equivalent.target = target_id
         return construct_lambda({term_id: '[]', iter_id: f'iter({self.apply_handler(node.iter)})'},
-                                construct_lambda({target: self._next_item()},
+                                construct_lambda({target_id: self._next_item()},
                                                  self.apply_handler(while_equivalent, cont)))
 
     def _handle_container(self, node) -> str:
@@ -166,11 +173,12 @@ class Flatliner:
         return f'{self.apply_handler(node.value)}.{node.attr}'
 
     def handle_assign(self, node, cont) -> str:
+        if len(node.targets) > 1:
+            targets = [self.apply_handler(t) for t in node.targets]
+            return f'[{cont} for {", ".join(targets)} in [[{self.apply_handler(node.value)}] * {len(targets)}]][0]'
         target = node.targets[0]
-        if isinstance(target, (ast.Attribute, ast.Subscript)):
-            if not cont:
-                return f'[None for {self.apply_handler(target)} in [{self.apply_handler(node.value)}]]'
-            return f'[[None for {self.apply_handler(target)} in [{self.apply_handler(node.value)}]], {cont}][-1]'
+        if isinstance(target, (ast.Attribute, ast.Subscript, ast.Tuple)):
+            return f'[{cont} for {self.apply_handler(target)} in [{self.apply_handler(node.value)}]][0]'
         return construct_lambda({self.apply_handler(target): self.apply_handler(node.value)}, cont)
 
     def handle_augassign(self, node, cont) -> str:
@@ -219,7 +227,9 @@ class Flatliner:
             ast.Not: 'not ',
             ast.Invert: '~',
         }
-        return f'{op_map[type(node.op)]}{self.apply_handler(node.operand)}'
+        if isinstance(node.operand, (ast.Name, ast.Constant)):
+            return f'{op_map[type(node.op)]}{self.apply_handler(node.operand)}'
+        return f'{op_map[type(node.op)]}({self.apply_handler(node.operand)})'
 
     def handle_if(self, node, cont) -> str:
         return f'({self.apply_handler(node.body, cont)} if {self.apply_handler(node.test)} else {self.apply_handler(node.orelse, cont)})'
@@ -237,7 +247,9 @@ class Flatliner:
             ast.IsNot: 'is not',
             ast.NotIn: 'not in',
         }
-        return f'{self.apply_handler(node.left)} {op_map[type(node.ops[0])]} {self.apply_handler(node.comparators[0])}'
+        comparisons = ''.join(f' {op_map[type(op)]} ' + self.apply_handler(val)
+                              for op, val in zip(node.ops, node.comparators))
+        return f'{self.apply_handler(node.left)}{comparisons}'
 
     def handle_methoddef(self, node, cont) -> str:
         all_args = [arg.arg for arg in node.args.args]
@@ -265,8 +277,9 @@ class Flatliner:
         for n in node.body:
             if isinstance(n, ast.FunctionDef):
                 attr_dict[n.name] = self.handle_methoddef(n, f'{node.name}.{n.name}')
+        bases = ''.join(self.apply_handler(n) + ', ' for n in node.bases)
         attr_repr = '{' + ', '.join(f'{repr(k)}: {v}' for k, v in attr_dict.items()) + '}'
-        return construct_lambda({node.name: f'type("{node.name}", (), {attr_repr})'}, cont)
+        return construct_lambda({node.name: f'type("{node.name}", ({bases}), {attr_repr})'}, cont)
 
     def handle_return(self, node, cont) -> str:
         if node.value is None:
@@ -275,7 +288,12 @@ class Flatliner:
 
     def handle_import(self, node, cont) -> str:
         imports = [(a.asname if a.asname else a.name, a.name) for a in node.names]
-        return construct_lambda({name: f"__import__('{mod}')" for name, mod in imports}, cont)
+        return construct_lambda({name.split('.')[0]: f"__import__('{mod}')" for name, mod in imports}, cont)
+
+    def handle_importfrom(self, node, cont) -> str:
+        imports = [(a.asname if a.asname else a.name, a.name) for a in node.names]
+        return construct_lambda({'_mod': f"__import__('{node.module}', {{}}, {{}}, {[i[1] for i in imports]})"},
+                                construct_lambda({name: f'_mod.{submodule}' for name, submodule in imports}, cont))
 
     def handle_error(self, node, cont) -> str:
         return ast.unparse(node)
