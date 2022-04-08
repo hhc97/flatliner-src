@@ -183,7 +183,15 @@ def test_tac_conversion():
     for file in os.listdir(base):
         if not any(file.endswith(ending) for ending in ignored):
             end_to_end(base + '/' + file)
+
+def test_tac_shortener():
+    base = './tac_ast_examples'
+    ignored = ['everything_else.py', 'unused_variables.py']
+    for file in os.listdir(base):
+        if not any(file.endswith(ending) for ending in ignored):
+            print(file)
             tac_shortener(base + '/' + file)
+
 
 
 def run_tests() -> None:

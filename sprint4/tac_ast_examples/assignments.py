@@ -4,7 +4,7 @@ b = 3 + 4.0
 print(b)
 c = a + b
 print(c)
-d = "Hi there"
+d = 5
 print(d)
 
 e = 5 > 4

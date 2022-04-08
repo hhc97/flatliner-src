@@ -38,6 +38,7 @@ class TACShortener:
                     'DEFN': self.function_handler,
                     'ADD-PARAM': self.add_param_handler,
                     'PUSH-PARAM': self.push_param_handler,
+                    'PUSH-ELMT': self.push_elmt_handler,
                     'CALL': self.call_handler,
                     'INDEX': self.index_handler,
                     'SLICE': self.slice_handler,
@@ -96,6 +97,14 @@ class TACShortener:
             var = self.mapping[var]
         list_of_statements.append((op, None, None, var))
 
+    def push_elmt_handler(self, list_of_statements, statement):
+        
+        op, arg1, arg2, value = statement
+        if type(value) == str and value in self.mapping:
+            value = self.mapping[value]
+        
+        list_of_statements.append((op,arg1,arg2,value))
+
 
     def function_handler(self, list_of_statements, statement):
         #Add statement to old key
@@ -139,6 +148,10 @@ class TACShortener:
 
         if arg1 in self.mapping:
             arg1 = self.mapping[arg1]
+
+        if arg2 in self.mapping and not arg2.startswith(TEMP):
+            arg2 = self.mapping[arg2]
+
         list_of_statements.append((op, arg1, arg2, var))
 
     def slice_handler(self, list_of_statements, statement):
@@ -148,9 +161,16 @@ class TACShortener:
         list_of_statements.append((op, arg1, arg2, var))
 
     def control_flow_handler(self, list_of_statements, statement):
-        list_of_statements.append(statement)
         
-        key = statement[-1]
+        op, arg1, arg2, key = statement
+
+        if type(arg1) == str and not arg1.startswith(TEMP):
+            arg1 = self.get_new_name(arg1)
+        
+        if type(arg2) == str and not arg2.startswith(TEMP):
+            arg2 = self.get_new_name(arg2)
+        
+        list_of_statements.append((op, arg1, arg2, key))
         if not key in self.keys_done and key in self.tac:
             self.optimize_tac(key,key)
             self.keys_done.add(key)
