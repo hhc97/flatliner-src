@@ -29,11 +29,11 @@ class TACShortener:
         self.mapping = {}
         self.handlers = {'+': self.comparison_handler, '-': self.comparison_handler, '*': self.comparison_handler,
                     '/': self.comparison_handler,
-                    #'OR': self.bool_handler, 'AND': self.bool_handler, 
+                    'OR': self.comparison_handler, 'AND': self.comparison_handler, 
                     '==': self.comparison_handler, '>': self.comparison_handler,
                     '<': self.comparison_handler, '<=': self.comparison_handler, '>=': self.comparison_handler, '!=': self.comparison_handler,
                     '=': self.assignment_handler,
-                   # 'in': self.comp_handler
+                    'in': self.comparison_handler
                     }
 
     def generate_small_string(self):
