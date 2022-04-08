@@ -1,5 +1,6 @@
 import argparse
 import ast
+from copy import deepcopy
 
 from code_to_tac import ASTVisitor
 from python_parser import PythonParser
@@ -35,8 +36,9 @@ class TACShortener:
                     '=': self.assignment_handler,
                     'in': self.comparison_handler,
                     'DEFN': self.function_handler,
-                    'ADD-PARAM': self.function_handler
+                    'ADD-PARAM': self.add_param_handler
                     }
+        self.optimized_tac_statements = {}
 
     def generate_small_string(self):
         index = self.short_string_index
@@ -64,23 +66,22 @@ class TACShortener:
             self.mapping[name] = new_var
             return new_var
 
-    def optimize_block(self, block, var_d=None):
-        statements = self.tac[block]
-        opt_statements = []
-        for statement in statements:
-            
-            #Basic statements
-            if statement[0] in self.handlers:
-                self.handlers[statement[0]](opt_statements, statement)
-            else:
-                opt_statements.append(statement)
-        return opt_statements
-
     def call_handler(self, statement, params):
         pass
 
-    def function_handler(self, list_of_statements, statement):
+    def add_param_handler(self, list_of_statements, statement):
         list_of_statements.append((statement[0],None,None,self.get_new_name(statement[-1])))
+
+    def function_handler(self, list_of_statements, statement):
+        #Add statement to old key
+        statement_name = statement[-1]
+        list_of_statements.append((statement[0],None,None,self.get_new_name(statement_name)))
+
+        old_mapping = self.mapping
+        self.mapping = deepcopy(self.mapping)
+        print(statement_name)
+        self.optimize_tac(statement_name, self.get_new_name(statement_name))
+        self.mapping = old_mapping
 
     def comparison_handler(self, list_of_statements, statement):
         op, arg1, arg2, mainAssign = statement 
@@ -122,18 +123,17 @@ class TACShortener:
     def list_handler(self, statement, index, statements):
         pass
 
-    def optimize_tac(self):
-        optimized_tac = {}
-        for scope in self.tac:
-            if not scope.startswith(BLOCK) and scope != 'main':
-                new_var = self.get_new_name(scope)
-                optimized_tac[new_var] = {}
-        for scope in self.tac:
-            if not scope.startswith(BLOCK) and scope != 'main':
-                optimized_tac[self.get_new_name(scope)] = self.optimize_block(scope)
+    def optimize_tac(self, block = 'main', new_key = 'main'):
+        statements = self.tac[block]
+        opt_statements = []
+        for statement in statements:
+            
+            #Basic statements
+            if statement[0] in self.handlers:
+                self.handlers[statement[0]](opt_statements, statement)
             else:
-                optimized_tac[scope] = self.optimize_block(scope)
-        return optimized_tac
+                opt_statements.append(statement)
+        self.optimized_tac_statements[new_key] = opt_statements
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')
@@ -155,4 +155,5 @@ if __name__ == '__main__':
 
     optimizer = TACShortener(visitor.tac)
 
-    print(optimizer.optimize_tac())
+    optimizer.optimize_tac()
+    print(optimizer.optimized_tac_statements)
