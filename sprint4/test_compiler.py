@@ -10,8 +10,8 @@ from io import StringIO
 from code_to_tac import ASTVisitor
 from flatline import Flatliner
 from python_parser import PythonParser
-from tac_to_code import TACConverter
 from tac_shorten import TACShortener
+from tac_to_code import TACConverter
 
 
 def clean_contents(s: str) -> str:
@@ -82,6 +82,7 @@ def check_unparse_result(test_input_filepath: str) -> None:
             outfile.write(new_output)
             outfile.write('"""\n')
 
+
 def tac_shortener(test_input_filepath: str) -> None:
     with open(test_input_filepath, 'r') as infile:
         file_contents = infile.read()
@@ -93,7 +94,7 @@ def tac_shortener(test_input_filepath: str) -> None:
         visitor = ASTVisitor()
         visitor.visit(ast_rep)
 
-        #Run shortener
+        # Run shortener
         tac_shortener_optimizer = TACShortener(visitor.tac)
         tac_shortener_optimizer.optimize_tac()
 
@@ -101,7 +102,6 @@ def tac_shortener(test_input_filepath: str) -> None:
         with open(f'./out/{test_input_filepath.split("/")[-1][:-3]}.optimized_tac.py', 'w') as outfile:
             outfile.write(f'tac = {repr(tac_shortener_optimizer.optimized_tac_statements)}')
 
-        
         # convert tac back into ast
         tac_converter = TACConverter(tac_shortener_optimizer.optimized_tac_statements)
         final_ast = tac_converter.get_ast()
@@ -115,7 +115,8 @@ def tac_shortener(test_input_filepath: str) -> None:
         original_output = get_exec_output(file_contents)
         new_output = get_exec_output(result)
         assert original_output == new_output, f'outputs different for {test_input_filepath} - optimizer'
-    
+
+
 def end_to_end(test_input_filepath: str) -> None:
     with open(test_input_filepath, 'r') as infile:
         file_contents = infile.read()
@@ -185,14 +186,13 @@ def test_tac_conversion():
         if not any(file.endswith(ending) for ending in ignored):
             end_to_end(base + '/' + file)
 
+
 def test_tac_shortener():
     base = './tac_ast_examples'
     ignored = ['everything_else.py', 'unused_variables.py']
     for file in os.listdir(base):
         if not any(file.endswith(ending) for ending in ignored):
-            print(file)
             tac_shortener(base + '/' + file)
-
 
 
 def run_tests() -> None:
