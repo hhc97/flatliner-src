@@ -4,6 +4,7 @@ from copy import deepcopy
 
 from code_to_tac import ASTVisitor
 from python_parser import PythonParser
+from tac_to_code import TACConverter
 
 code = []
 START = 'main'
@@ -43,7 +44,8 @@ class TACShortener:
                     'GOTO': self.goto_handler,
                     'IF': self.control_flow_handler,
                     'WHILE': self.control_flow_handler,
-                    'FOR': self.control_flow_handler
+                    'FOR': self.control_flow_handler,
+                    'RETURN': self.return_handler
                     }
         self.optimized_tac_statements = {}
         self.keys_done = set()
@@ -114,6 +116,12 @@ class TACShortener:
         if type(arg2) == str and arg2 in self.mapping:
             arg2 = self.mapping[arg2]
         list_of_statements.append((op, arg1, arg2, mainAssign))
+
+    def return_handler(self, list_of_statements, statement):
+        op, arg1, arg2, mainAssign = statement
+        if type(mainAssign) == str and mainAssign in self.mapping:
+            mainAssign = self.mapping[mainAssign]
+        list_of_statements.append((op,arg1,arg2,mainAssign))
     
     def assignment_handler(self, list_of_statements, statement):
 
@@ -187,4 +195,11 @@ if __name__ == '__main__':
     optimizer = TACShortener(visitor.tac)
 
     optimizer.optimize_tac()
+    print('optimized_tac:')
     print(optimizer.optimized_tac_statements)
+
+    converter = TACConverter(optimizer.optimized_tac_statements)
+    wrap = converter.get_ast()
+
+    printd(ast.dump(wrap, indent=4))
+    print(f'Code:\n{ast.unparse(wrap)}')
