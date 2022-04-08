@@ -24,6 +24,7 @@ class TACShortener:
         self.tac = tac
         self.lineno = 0
         self.short_string_index = 0
+        self.mapping = {}
 
     def generate_small_string(self):
         index = self.short_string_index
@@ -42,6 +43,14 @@ class TACShortener:
             generated_string += alphabet[index]
         self.short_string_index += 1
         return generated_string
+
+    def get_new_name(self, name):
+        if name in self.mapping:
+            return self.mapping[name]
+        else:
+            new_var = self.generate_small_string()
+            self.mapping[name] = new_var
+            return new_var
 
     def optimize_block(self, block, var_d=None):
         statements = self.tac[block]
@@ -73,8 +82,16 @@ class TACShortener:
     def binary_handler(self, statement):
         pass
 
-    def assignment_handler(self, statement):
-        pass
+    def assignment_handler(self, list_of_statements, statement):
+
+        op, arg1, arg2, mainAssign = statement
+        if type(arg1) == str and not arg1.startswith(TEMP):
+            #variable
+            arg1 = self.get_new_name(arg1)
+        
+        if not mainAssign.startswith(TEMP):
+            mainAssign = self.get_new_name(mainAssign)
+        list_of_statements.append((op, arg1, arg2, mainAssign))
 
     def bool_handler(self, statement):
         pass
@@ -122,7 +139,5 @@ if __name__ == '__main__':
     printd(visitor.tac)
 
     optimizer = TACShortener(visitor.tac)
-    for i in range(10000):
-        print(optimizer.generate_small_string())
 
     print(optimizer.optimize_tac())
