@@ -1,22 +1,24 @@
 Name: Naaz Sibia
 Student Number: 1004432321
 Group Members: Haocheng Hu, Naaz Sibia, Ritvik Bhardwaj
-Sprint: X
+Sprint: 4
 
 Contributions:
- Naaz Sibia (x%)
-    - 
-    - 
-    - 
+ Haocheng Hu (33%)
+    - Updated target generator to include support for additional Python structures.
+    - Wrote sections of the pdf document.
+    - Did course evaluation!
 
 
- Ritvik Bhardwaj (x%)
-    - 
-    - 
-    - 
+ Naaz Sibia (33%)
+    - Fixed unused token issues with Lexer
+    - Fixed shift/reduce conflicts in the Parser
+    - Worked on unused variables optimization 
+    - Wrote sections of the pdf document
+    - Did course evaluation!
 
 
- Haocheng Hu (x%)
-    - 
-    - 
-    - 
+ Ritvik Bhardwaj (33%)
+    - Worked on name shortening optimization
+    - Wrote sections of the pdf document
+    - Did course evaluation!
