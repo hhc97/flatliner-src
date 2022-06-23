@@ -1,0 +1,19 @@
+name: unit-tests
+
+on: push
+
+jobs:
+  unit_tests:
+    runs-on: ubuntu-latest
+    steps:
+      # checks out repo and upgrades python version
+      - uses: actions/checkout@v2
+      - name: Configure Python version
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10.x'
+      - name: Setup requirements and dependencies
+        run: |
+          pip3 install -r requirements.txt
+      - name: Run tests
+        run: python3 test_compiler.py
