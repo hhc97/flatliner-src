@@ -145,7 +145,7 @@ Output:
 ```
 
 Running this output shows us it works like the original code, how neat!
-![](/assets/tic-tac-toe.gif)
+<img src="/assets/tic-tac-toe.gif" width="250" height="250"/>
 
 For more examples of what can be converted, see [code_examples](/code_examples).
 
