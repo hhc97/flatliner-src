@@ -2,7 +2,7 @@
 
 [![unit-tests](https://github.com/hhc97/flatliner-src/actions/workflows/tests.yml/badge.svg)](https://github.com/hhc97/flatliner-src/actions/workflows/tests.yml)
 
-This repo contains the core code for Flatliner ([https://flatliner.herokuapp.com/](https://flatliner.herokuapp.com/)).
+This repo contains the core code for Flatliner ([https://flatliner.herokuapp.com/](https://flatliner.herokuapp.com/)). (Give it a couple seconds if it doesn't load immediately.)
 
 ### Basic overview
 
