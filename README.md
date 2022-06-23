@@ -160,4 +160,4 @@ can also convert itself into one line! See [flatline_one_lined.py](/demo/flatlin
 This project was made together with [Naaz](https://github.com/naazsibia) and [Ritvik](https://github.com/AipioxTechson)
 for a compilers course at the University of Toronto.
 
-While implementing our project, we also came across an excellent python 2 implementation of this project [here](https://github.com/csvoss/onelinerizer).
+While implementing our project, we also came across an excellent python 2 implementation of the same concept [here](https://github.com/csvoss/onelinerizer).
