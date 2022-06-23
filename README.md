@@ -145,7 +145,8 @@ Output:
 ```
 
 Running this output shows us it works like the original code, how neat!
-<img src="/assets/tic-tac-toe.gif" width="250" height="250"/>
+
+<img src="/assets/tic-tac-toe.gif" width="2500" height="2500"/>
 
 For more examples of what can be converted, see [code_examples](/code_examples).
 
