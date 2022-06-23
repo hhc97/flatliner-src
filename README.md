@@ -146,6 +146,11 @@ Output:
 
 For more examples of what can be converted, see [code_examples](/code_examples).
 
+### Misc
+
+For those interested in how this works, the conversion happens in [flatline.py](/flatline.py). This program
+can also convert itself into one line! See [flatline_one_lined.py](/demo/flatline_one_lined.py).
+
 
 ### Acknowledgement
 
