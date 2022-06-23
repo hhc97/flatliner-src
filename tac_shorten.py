@@ -14,8 +14,6 @@ DEBUG = False
 alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 
-
-
 def printd(*args, **kwargs):
     """Printing for debugging"""
     if DEBUG:
@@ -29,25 +27,26 @@ class TACShortener:
         self.short_string_index = 0
         self.mapping = {}
         self.handlers = {'+': self.comparison_handler, '-': self.comparison_handler, '*': self.comparison_handler,
-                    '/': self.comparison_handler,
-                    'OR': self.comparison_handler, 'AND': self.comparison_handler, 
-                    '==': self.comparison_handler, '>': self.comparison_handler,
-                    '<': self.comparison_handler, '<=': self.comparison_handler, '>=': self.comparison_handler, '!=': self.comparison_handler,
-                    '=': self.assignment_handler,
-                    'in': self.comparison_handler,
-                    'DEFN': self.function_handler,
-                    'ADD-PARAM': self.add_param_handler,
-                    'PUSH-PARAM': self.push_param_handler,
-                    'PUSH-ELMT': self.push_elmt_handler,
-                    'CALL': self.call_handler,
-                    'INDEX': self.index_handler,
-                    'SLICE': self.slice_handler,
-                    'GOTO': self.goto_handler,
-                    'IF': self.control_flow_handler,
-                    'WHILE': self.control_flow_handler,
-                    'FOR': self.control_flow_handler,
-                    'RETURN': self.return_handler
-                    }
+                         '/': self.comparison_handler,
+                         'OR': self.comparison_handler, 'AND': self.comparison_handler,
+                         '==': self.comparison_handler, '>': self.comparison_handler,
+                         '<': self.comparison_handler, '<=': self.comparison_handler, '>=': self.comparison_handler,
+                         '!=': self.comparison_handler,
+                         '=': self.assignment_handler,
+                         'in': self.comparison_handler,
+                         'DEFN': self.function_handler,
+                         'ADD-PARAM': self.add_param_handler,
+                         'PUSH-PARAM': self.push_param_handler,
+                         'PUSH-ELMT': self.push_elmt_handler,
+                         'CALL': self.call_handler,
+                         'INDEX': self.index_handler,
+                         'SLICE': self.slice_handler,
+                         'GOTO': self.goto_handler,
+                         'IF': self.control_flow_handler,
+                         'WHILE': self.control_flow_handler,
+                         'FOR': self.control_flow_handler,
+                         'RETURN': self.return_handler
+                         }
         self.optimized_tac_statements = {}
         self.keys_done = set()
 
@@ -56,7 +55,7 @@ class TACShortener:
         generated_string = ''
         amount = index // len(alphabet)
 
-        #handles multiple 
+        # handles multiple
         while amount > len(alphabet):
             generated_string += alphabet[-1]
             amount -= len(alphabet)
@@ -82,13 +81,13 @@ class TACShortener:
 
         if objName != None:
             objName = self.mapping[objName]
-        
+
         if var in self.mapping:
             var = self.mapping[var]
-        list_of_statements.append((op,objName,length,var))
+        list_of_statements.append((op, objName, length, var))
 
     def add_param_handler(self, list_of_statements, statement):
-        list_of_statements.append((statement[0],None,None,self.get_new_name(statement[-1])))
+        list_of_statements.append((statement[0], None, None, self.get_new_name(statement[-1])))
 
     def push_param_handler(self, list_of_statements, statement):
         op, _, _, var = statement
@@ -98,18 +97,17 @@ class TACShortener:
         list_of_statements.append((op, None, None, var))
 
     def push_elmt_handler(self, list_of_statements, statement):
-        
+
         op, arg1, arg2, value = statement
         if type(value) == str and value in self.mapping:
             value = self.mapping[value]
-        
-        list_of_statements.append((op,arg1,arg2,value))
 
+        list_of_statements.append((op, arg1, arg2, value))
 
     def function_handler(self, list_of_statements, statement):
-        #Add statement to old key
+        # Add statement to old key
         statement_name = statement[-1]
-        list_of_statements.append((statement[0],None,None,self.get_new_name(statement_name)))
+        list_of_statements.append((statement[0], None, None, self.get_new_name(statement_name)))
 
         old_mapping = self.mapping
         self.mapping = deepcopy(self.mapping)
@@ -117,11 +115,11 @@ class TACShortener:
         self.mapping = old_mapping
 
     def comparison_handler(self, list_of_statements, statement):
-        op, arg1, arg2, mainAssign = statement 
+        op, arg1, arg2, mainAssign = statement
 
         if type(arg1) == str and arg1 in self.mapping:
             arg1 = self.mapping[arg1]
-        
+
         if type(arg2) == str and arg2 in self.mapping:
             arg2 = self.mapping[arg2]
         list_of_statements.append((op, arg1, arg2, mainAssign))
@@ -130,21 +128,21 @@ class TACShortener:
         op, arg1, arg2, mainAssign = statement
         if type(mainAssign) == str and mainAssign in self.mapping:
             mainAssign = self.mapping[mainAssign]
-        list_of_statements.append((op,arg1,arg2,mainAssign))
-    
+        list_of_statements.append((op, arg1, arg2, mainAssign))
+
     def assignment_handler(self, list_of_statements, statement):
 
         op, arg1, arg2, mainAssign = statement
         if type(arg1) == str and not arg1.startswith(TEMP):
-            #variable
+            # variable
             arg1 = self.get_new_name(arg1)
-        
+
         if not mainAssign.startswith(TEMP):
             mainAssign = self.get_new_name(mainAssign)
         list_of_statements.append((op, arg1, arg2, mainAssign))
 
     def index_handler(self, list_of_statements, statement):
-        op, arg1, arg2, var = statement 
+        op, arg1, arg2, var = statement
 
         if arg1 in self.mapping:
             arg1 = self.mapping[arg1]
@@ -161,38 +159,39 @@ class TACShortener:
         list_of_statements.append((op, arg1, arg2, var))
 
     def control_flow_handler(self, list_of_statements, statement):
-        
+
         op, arg1, arg2, key = statement
 
         if type(arg1) == str and not arg1.startswith(TEMP):
             arg1 = self.get_new_name(arg1)
-        
+
         if type(arg2) == str and not arg2.startswith(TEMP):
             arg2 = self.get_new_name(arg2)
-        
+
         list_of_statements.append((op, arg1, arg2, key))
         if not key in self.keys_done and key in self.tac:
-            self.optimize_tac(key,key)
+            self.optimize_tac(key, key)
             self.keys_done.add(key)
 
     def goto_handler(self, list_of_statements, statement):
         list_of_statements.append(statement)
         key = statement[-1]
         if not key in self.keys_done and key in self.tac:
-            self.optimize_tac(key,key)
+            self.optimize_tac(key, key)
             self.keys_done.add(key)
 
-    def optimize_tac(self, block = 'main', new_key = 'main'):
+    def optimize_tac(self, block='main', new_key='main'):
         statements = self.tac[block]
         opt_statements = []
         for statement in statements:
-            
-            #Basic statements
+
+            # Basic statements
             if statement[0] in self.handlers:
                 self.handlers[statement[0]](opt_statements, statement)
             else:
                 opt_statements.append(statement)
         self.optimized_tac_statements[new_key] = opt_statements
+
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')

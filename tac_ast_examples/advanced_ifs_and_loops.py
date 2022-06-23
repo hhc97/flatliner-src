@@ -24,7 +24,7 @@ def find_peak(m):
                 largest = data[i]
     return [x, y]
 
+
 sample = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 print(get_average_elevation(sample))
 print(find_peak(sample))
-

@@ -76,9 +76,9 @@ class TACOptimizer:
         for statement in statements:
             var = statement[3]
             op = statement[0]
-            removing = ['+', '-', '*', '/','OR', 
-                        'AND', '==', '>','<', '<=', 
-                        '>=', '!=','=','in']
+            removing = ['+', '-', '*', '/', 'OR',
+                        'AND', '==', '>', '<', '<=',
+                        '>=', '!=', '=', 'in']
             if op in removing and statement[2] != 'ret' and self._removed_var(var_d, var):
                 var_d[var] = None
                 continue
@@ -89,12 +89,12 @@ class TACOptimizer:
         op, var = statement[0], statement[3]
         var1, var2 = statement[1], statement[2]
         if var:
-            var_d[var] = [] # 0 occurences, we're counting
-        
-        if var1 in var_d: # is a variable and now used in an expression
+            var_d[var] = []  # 0 occurences, we're counting
+
+        if var1 in var_d:  # is a variable and now used in an expression
             var_d[var1].append(var)
-        
-        if var2 in var_d: # is a variable and now used in an expression
+
+        if var2 in var_d:  # is a variable and now used in an expression
             var_d[var2].append(var)
 
     def _removed_var(self, var_d, var):
@@ -110,15 +110,12 @@ class TACOptimizer:
 
         # will be removed
         if not var.startswith(TEMP) and len(var_d[var]) == 0:
-            return True 
-        
+            return True
+
         for var2 in var_d[var]:
             if not self._removed_var(var_d, var2):
-                return False 
+                return False
         return True
-        
-        
-
 
     def constant_handler(self, constant, var_d):
         pass
@@ -167,6 +164,7 @@ class TACOptimizer:
         for scope in self.tac:
             optimized_tac[scope] = self.optimize_block(scope)
         return optimized_tac
+
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Take in the python source code and parses it')

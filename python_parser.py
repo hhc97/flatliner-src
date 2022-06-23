@@ -130,7 +130,7 @@ class PythonParser:
         """
         printd('break')
         p[0] = ast.Break()
-    
+
     def p_pass_statement(self, p):
         """
         pass : PASS NEWLINE
@@ -348,7 +348,7 @@ class PythonParser:
             '%': ast.Mod()
         }
         p[0] = ast.BinOp(p[1], op_map[p[2]], p[3])
-    
+
     def p_expr_not(self, p):
         """
         expr : NOT expr
@@ -389,7 +389,7 @@ class PythonParser:
         expr : ID
         """
         p[0] = ast.Name(p[1], ast.Load())
-        
+
     def p_expr_none(self, p):
         """
         expr : NONE

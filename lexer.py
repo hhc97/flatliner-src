@@ -40,7 +40,6 @@ tokens = [
              'DOT',
              'COLON',
 
-
              'MODULO',
 
              'GREATER',
