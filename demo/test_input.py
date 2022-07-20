@@ -1,4 +1,5 @@
 import ast
+import sys
 
 
 def construct_lambda(vals: dict[str, str], body: str = '{}') -> str:
@@ -319,6 +320,7 @@ class Flatliner:
 
 
 if __name__ == '__main__':
+    sys.setrecursionlimit(20000)
     test = Flatliner()
     test.set_ast('test_input.py')
     result = test.unparse()
