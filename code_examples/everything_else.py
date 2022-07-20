@@ -1,6 +1,7 @@
-import math
 import os as renamed_import
 from sys import version as ver
+
+import math
 
 print(renamed_import.sep)
 print(ver)
@@ -290,3 +291,6 @@ print(BinarySearchTree(10)._right.is_empty())
 
 a = not (not True or not False)
 print(a)
+
+single_tuple = (1,)
+print(type(single_tuple))
