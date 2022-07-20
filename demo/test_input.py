@@ -153,7 +153,7 @@ class Flatliner:
         return f'[{self._handle_container(node)}]'
 
     def handle_tuple(self, node, cont) -> str:
-        return f'({self._handle_container(node)})'
+        return f'({self._handle_container(node)}{"," * (len(node.elts) == 1)})'
 
     def handle_set(self, node, cont) -> str:
         return '{' + self._handle_container(node) + '}'
