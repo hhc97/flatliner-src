@@ -1,4 +1,5 @@
 import ast
+import sys
 
 
 def construct_lambda(vals: dict[str, str], body: str = '{}') -> str:
@@ -153,7 +154,7 @@ class Flatliner:
         return f'[{self._handle_container(node)}]'
 
     def handle_tuple(self, node, cont) -> str:
-        return f'({self._handle_container(node)})'
+        return f'({self._handle_container(node)}{"," * (len(node.elts) == 1)})'
 
     def handle_set(self, node, cont) -> str:
         return '{' + self._handle_container(node) + '}'
@@ -319,6 +320,7 @@ class Flatliner:
 
 
 if __name__ == '__main__':
+    sys.setrecursionlimit(20000)
     test = Flatliner()
     test.set_ast('test_input.py')
     result = test.unparse()
