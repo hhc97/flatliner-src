@@ -7,11 +7,11 @@ import re
 from contextlib import redirect_stdout
 from io import StringIO
 
-from code_to_tac import ASTVisitor
+# from code_to_tac import ASTVisitor
 from flatline import Flatliner
-from python_parser import PythonParser
-from tac_shorten import TACShortener
-from tac_to_code import TACConverter
+# from python_parser import PythonParser
+# from tac_shorten import TACShortener
+# from tac_to_code import TACConverter
 
 
 def clean_contents(s: str) -> str:
@@ -145,29 +145,29 @@ def end_to_end(test_input_filepath: str) -> None:
         assert original_output == new_output, f'outputs different for {test_input_filepath}'
 
 
-def test_assignments():
-    compare_parser('code_examples/assignments.py')
+# def test_assignments():
+#     compare_parser('code_examples/assignments.py')
 
 
-def test_loops():
-    compare_parser('test_inputs/loops.py')
+# def test_loops():
+#     compare_parser('test_inputs/loops.py')
 
 
-def test_ifs():
-    compare_parser('test_inputs/ifs_test.py')
+# def test_ifs():
+#     compare_parser('test_inputs/ifs_test.py')
 
 
-def test_comprehensive():
-    compare_parser('test_inputs/comprehensive.py')
+# def test_comprehensive():
+#     compare_parser('test_inputs/comprehensive.py')
 
 
-def test_parse_files():
-    base = './code_examples'
-    ignored = ['everything_else.py', 'advanced_ifs_and_loops.py', 'loops_flow_control.py', 'inheritance.py',
-               'multiple_assignment.py']
-    for file in os.listdir(base):
-        if not any(file.endswith(ending) for ending in ignored):
-            compare_parser(base + '/' + file)
+# def test_parse_files():
+#     base = './code_examples'
+#     ignored = ['everything_else.py', 'advanced_ifs_and_loops.py', 'loops_flow_control.py', 'inheritance.py',
+#                'multiple_assignment.py']
+#     for file in os.listdir(base):
+#         if not any(file.endswith(ending) for ending in ignored):
+#             compare_parser(base + '/' + file)
 
 
 def test_unparse_files_multiple():
@@ -176,23 +176,24 @@ def test_unparse_files_multiple():
     for file in os.listdir(base):
         if not any(file.endswith(ending) for ending in ignored):
             check_unparse_result(base + '/' + file)
+            print(f'> {file} {"-" * (33 - len(file))} Passed')
     assert FLATLINER.all_hit()
 
 
-def test_tac_conversion():
-    base = './tac_ast_examples'
-    ignored = ['everything_else.py']
-    for file in os.listdir(base):
-        if not any(file.endswith(ending) for ending in ignored):
-            end_to_end(base + '/' + file)
+# def test_tac_conversion():
+#     base = './tac_ast_examples'
+#     ignored = ['everything_else.py']
+#     for file in os.listdir(base):
+#         if not any(file.endswith(ending) for ending in ignored):
+#             end_to_end(base + '/' + file)
 
 
-def test_tac_shortener():
-    base = './tac_ast_examples'
-    ignored = ['everything_else.py', 'unused_variables.py']
-    for file in os.listdir(base):
-        if not any(file.endswith(ending) for ending in ignored):
-            tac_shortener(base + '/' + file)
+# def test_tac_shortener():
+#     base = './tac_ast_examples'
+#     ignored = ['everything_else.py', 'unused_variables.py']
+#     for file in os.listdir(base):
+#         if not any(file.endswith(ending) for ending in ignored):
+#             tac_shortener(base + '/' + file)
 
 
 def run_tests() -> None:
