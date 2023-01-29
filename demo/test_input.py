@@ -250,7 +250,7 @@ class Flatliner:
         }
         comparisons = ''.join(f' {op_map[type(op)]} ' + self.apply_handler(val)
                               for op, val in zip(node.ops, node.comparators))
-        return f'{self.apply_handler(node.left)}{comparisons}'
+        return f'({self.apply_handler(node.left)}{comparisons})'
 
     def handle_methoddef(self, node, cont) -> str:
         all_args = [arg.arg for arg in node.args.args]
