@@ -178,7 +178,7 @@ class Flatliner:
             targets = [self.apply_handler(t) for t in node.targets]
             return f'[{cont} for {", ".join(targets)} in [[{self.apply_handler(node.value)}] * {len(targets)}]][0]'
         target = node.targets[0]
-        if isinstance(target, (ast.Attribute, ast.Subscript, ast.Tuple)):
+        if isinstance(target, (ast.Attribute, ast.Subscript, ast.Tuple, ast.List)):
             return f'[{cont} for {self.apply_handler(target)} in [{self.apply_handler(node.value)}]][0]'
         return construct_lambda({self.apply_handler(target): self.apply_handler(node.value)}, cont)
 

@@ -294,3 +294,8 @@ print(a)
 
 single_tuple = (1,)
 print(type(single_tuple))
+
+[a, b] = [1, 2]
+print(a, b)
+[a,b] = {3:5, 4:6}
+print(a, b)
