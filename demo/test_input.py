@@ -168,6 +168,8 @@ class Flatliner:
         return ':'.join(parts)
 
     def handle_subscript(self, node, cont) -> str:
+        if isinstance(node.slice, ast.Tuple):
+            return f'{self.apply_handler(node.value)}[{self.apply_handler(node.slice)[1:-1]}]'
         return f'{self.apply_handler(node.value)}[{self.apply_handler(node.slice)}]'
 
     def handle_attribute(self, node, cont) -> str:
