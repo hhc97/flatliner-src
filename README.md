@@ -161,3 +161,8 @@ This project was made together with [Naaz](https://github.com/naazsibia) and [Ri
 for a compilers course at the University of Toronto.
 
 While implementing our project, we also came across an excellent python 2 implementation of the same concept [here](https://github.com/csvoss/onelinerizer).
+
+
+### License
+
+While this work is distributed under the [MIT license](/LICENSE), contributions back to source will be appreciated :)
