@@ -1,6 +1,9 @@
 name: unit-tests
 
-on: push
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * 0'
 
 jobs:
   unit_tests:
